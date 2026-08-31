@@ -3,67 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoodNews — Бесконечная Лента</title>
+    <title>GoodNews Live</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
-
         body {
             background-color: #0f172a;
             color: #f8fafc;
             min-height: 100vh;
             padding-bottom: 40px;
-            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
         }
-
+        
         header {
             background: linear-gradient(135deg, #1e293b, #0f172a);
-            padding: 20px;
+            padding: 24px 20px;
             text-align: center;
             border-bottom: 1px solid #334155;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transform: translateZ(0);
         }
-
+        .logo-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
         .logo {
             font-size: 1.6rem;
             font-weight: 800;
             background: linear-gradient(135deg, #38bdf8, #c084fc, #f472b6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
         }
-
-        .butterfly-icon {
-            display: inline-block;
-            font-size: 1.4rem;
+        .butterfly {
+            font-size: 1.3rem;
             animation: flutter 2s infinite ease-in-out;
+            display: inline-block;
+            will-change: transform;
         }
-
-        .butterfly-icon.right {
+        .butterfly.right {
             animation-delay: 1s;
+            transform: scaleX(-1);
         }
-
         @keyframes flutter {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.15) rotate(12deg); }
+            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+            50% { transform: translateY(-5px) rotate(10deg) scale(1.15); }
         }
-
         .subtitle {
             color: #94a3b8;
             font-size: 0.85rem;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
-
-        .donate-header-btn {
+        .donate-btn {
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
             border: none;
@@ -73,11 +74,11 @@
             font-size: 0.85rem;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-            transition: transform 0.2s;
+            transition: transform 0.15s, box-shadow 0.15s;
         }
-
-        .donate-header-btn:active {
-            transform: scale(0.95);
+        .donate-btn:active {
+            transform: scale(0.93);
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
         }
 
         .container {
@@ -85,503 +86,294 @@
             margin: 0 auto;
             padding: 20px;
         }
-
-        .refresh-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 12px;
+        .info-date {
             background: #1e293b;
-            border: 1px solid #38bdf8;
-            color: #38bdf8;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            border: 1px solid #334155;
+            color: #34d399;
+            padding: 10px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
-
-        .refresh-btn:hover {
-            background: rgba(56, 189, 248, 0.1);
-        }
-
-        .refresh-btn:active {
-            transform: scale(0.97);
-        }
-
         .news-card {
             background: #1e293b;
             border-radius: 16px;
-            padding: 20px;
+            padding: 18px;
             margin-bottom: 16px;
             border: 1px solid #334155;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 0.4s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .news-tag {
-            display: inline-block;
             font-size: 0.75rem;
-            font-weight: 600;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
             padding: 4px 10px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            background: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-        }
-
-        .news-title {
-            font-size: 1.15rem;
-            font-weight: 700;
-            line-height: 1.4;
+            border-radius: 10px;
+            display: inline-block;
             margin-bottom: 10px;
-            color: #f1f5f9;
+            font-weight: 600;
         }
-
+        .news-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #f1f5f9;
+            line-height: 1.4;
+        }
         .news-text {
             color: #94a3b8;
-            font-size: 0.92rem;
-            line-height: 1.6;
-            margin-bottom: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 14px;
         }
-
-        .reactions-bar {
+        .reactions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             border-top: 1px solid #334155;
             padding-top: 12px;
-            justify-content: space-between;
         }
-
-        .reaction-btn {
+        .react-btn {
             background: #0f172a;
             border: 1px solid #334155;
-            color: #f8fafc;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
+            color: white;
+            padding: 8px 4px;
+            border-radius: 14px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
             flex: 1;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: flex;
             justify-content: center;
-            transition: all 0.2s ease;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .reaction-btn:active {
-            transform: scale(0.92);
+        .react-btn:active {
+            transform: scale(0.8);
         }
-
-        .reaction-btn.active {
-            background: rgba(56, 189, 248, 0.15);
+        .react-btn.active {
+            background: rgba(56, 189, 248, 0.2);
             border-color: #38bdf8;
             color: #38bdf8;
+            transform: scale(1.05);
         }
 
-        .reaction-btn.active[data-type="dislike"] {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: #ef4444;
-            color: #f87171;
-        }
-
-        .reaction-btn.active[data-type="poop"] {
-            background: rgba(217, 119, 6, 0.2);
-            border-color: #d97706;
-            color: #f59e0b;
-        }
-
-        .reaction-btn.active[data-type="heart"] {
-            background: rgba(236, 72, 153, 0.2);
-            border-color: #ec4899;
-            color: #f43f5e;
-        }
-
-        .flying-particle {
-            position: fixed;
+        .sparkle {
+            position: absolute;
             pointer-events: none;
-            font-size: 20px;
-            z-index: 9999;
-            animation: fly 0.8s ease-out forwards;
-        }
-
-        @keyframes fly {
-            0% { opacity: 1; transform: translate(0, 0) scale(1); }
-            100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.5) rotate(var(--rot)); }
-        }
-
-        .load-more-btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            border: none;
-            border-radius: 14px;
             font-size: 1rem;
-            font-weight: 700;
-            margin: 20px 0;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        .scroll-top-btn {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #38bdf8, #818cf8);
-            color: white;
-            border: none;
-            font-size: 1.3rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(20px);
-            transition: all 0.3s ease;
-            z-index: 900;
-        }
-
-        .scroll-top-btn.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(5px);
-            display: none;
-            justify-content: center;
-            align-items: center;
+            animation: sparkFly 0.6s ease-out forwards;
             z-index: 1000;
-            padding: 20px;
+        }
+        @keyframes sparkFly {
+            0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
+            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.3); }
         }
 
-        .modal {
-            background: #1e293b;
-            border-radius: 20px;
-            padding: 24px;
-            max-width: 360px;
-            width: 100%;
-            border: 1px solid #334155;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            text-align: center;
-            position: relative;
-            animation: modalPop 0.3s ease;
-        }
-
-        @keyframes modalPop {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .close-btn {
+        .click-effect {
             position: absolute;
-            top: 12px;
-            right: 16px;
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 1.5rem;
-            cursor: pointer;
+            pointer-events: none;
+            font-size: 1.2rem;
+            animation: floatUp 0.6s ease-out forwards;
+            z-index: 9999;
         }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .custom-input {
-            width: 100%;
-            padding: 16px 45px 16px 20px;
-            background: #0f172a;
-            border: 2px solid #334155;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 1.4rem;
-            font-weight: bold;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .custom-input:focus {
-            border-color: #f59e0b;
-        }
-
-        .currency-symbol {
-            position: absolute;
-            right: 20px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #94a3b8;
-        }
-
-        .pay-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.4); }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">
-            <span class="butterfly-icon">🦋</span>
-            <span>GoodNews Live</span>
-            <span class="butterfly-icon right">🦋</span>
+        <div class="logo-wrapper">
+            <span class="butterfly">🦋</span>
+            <span class="logo">GoodNews Live</span>
+            <span class="butterfly right">🦋</span>
         </div>
-        <div class="subtitle">Бесконечный поток позитива</div>
-        <button class="donate-header-btn" id="openDonateBtn">☕ Поддержать проект</button>
+        <div class="subtitle">Ежедневный поток позитива</div>
+        <button class="donate-btn" onclick="alert('Спасибо за поддержку!')">☕ Поддержать проект</button>
     </header>
 
     <div class="container">
-        <button class="refresh-btn" id="refreshBtn">🔄 Обновить ленту</button>
-        <div id="news-feed"></div>
-        <button class="load-more-btn" id="loadMoreBtn">➕ Загрузить ещё новости</button>
+        <div class="info-date" id="currentDateText">📅 Загрузка даты...</div>
+        <div id="feed"></div>
     </div>
 
-    <button class="scroll-top-btn" id="scrollTopBtn">⬆️</button>
+    <!-- Firebase SDK (модульная версия) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <div class="modal-overlay" id="donateModal">
-        <div class="modal">
-            <button class="close-btn" id="closeModalBtn">✕</button>
-            <h2 style="margin-bottom: 8px; color: #f1f5f9;">Поддержать проект ☕</h2>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 20px;">
-                Введите любую сумму поддержки:
-            </p>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBljsHsWi0m3VKQ2FDqR5YPapLv-c6yLS4",
+            authDomain: "mir-dobro.firebaseapp.com",
+            projectId: "mir-dobro",
+            storageBucket: "mir-dobro.firebasestorage.app",
+            messagingSenderId: "659469108341",
+            appId: "1:659469108341:web:f23dd02f8143c182fc243c",
+            measurementId: "G-XEQYQRK03G"
+        };
 
-            <div class="input-wrapper">
-                <input type="number" id="customAmount" class="custom-input" placeholder="0" min="1">
-                <span class="currency-symbol">₽</span>
-            </div>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-            <button class="pay-btn" id="payBtn">Поддержать 💳</button>
-        </div>
-    </div>
-
-    <script>
-        const topics = [
-            { 
-                tag: "🌿 Экология", 
-                titles: [
-                    "Восстановление масштабных лесных массивов завершилось успехом", 
-                    "Успешная очистка прибрежных зон океана от пластика", 
-                    "Беспрецедентный рост популяции редких видов птиц в заповеднике",
-                    "Новый эко-парк открылся в столице благодаря волонтерам"
-                ], 
-                texts: [
-                    "Экологи провели масштабную акцию, высадив более 100 тысяч саженцев хвойных деревьев. Проект направлен на восстановление природного баланса региона.", 
-                    "Новейшие автономные дроны-сборщики показали высокую эффективность на глубоководных испытаниях по очистке океана.", 
-                    "Число молодых особей в главном заповеднике достигло исторического максимума благодаря новой программе защиты гнезд.",
-                    "Жители города объединили усилия и превратили заброшенный пустырь в цветущую зеленую зону с зонами отдыха."
-                ] 
-            },
-            { 
-                tag: "🚀 Технологии", 
-                titles: [
-                    "Ученые совершили прорыв в солнечной энергетике", 
-                    "Медицинский робот нового поколения спас тысячи жизней", 
-                    "ИИ помог расшифровать древние рукописи за считанные часы"
-                ], 
-                texts: [
-                    "Инженеры разработали новый тип панелей, которые увеличивают КПД солнечных батарей в два раза при меньшей стоимости.", 
-                    "Новая разработка позволяет проводить сложнейшие микрохирургические операции с ювелирной точностью.", 
-                    "Нейросеть за несколько часов проанализировала и перевела свитки, которые лингвисты не могли расшифровать десятилетиями."
-                ] 
-            },
-            { 
-                tag: "❤️ Доброта", 
-                titles: [
-                    "Школьники создали уникальный эко-проект для помощи городу", 
-                    "Приют для животных нашел дом для сотен питомцев за месяц", 
-                    "Городской парк полностью восстановили силами добровольцев"
-                ], 
-                texts: [
-                    "На вырученные от сбора макулатуры средства ребята построили современную спортивную площадку.", 
-                    "Благодаря активной поддержке в соцсетях, новый любящий дом удалось найти для десятков пушистых пациентов.", 
-                    "Более 500 неравнодушных жителей собрались вместе, чтобы очистить сквер и высадить новые аллеи."
-                ] 
-            }
+        const allNewsDatabase = [
+            { id: 1, tag: "🌿 Экология", title: "Масштабная высадка леса завершена", text: "Волонтеры успешно посадили более 100 тысяч деревьев для восстановления природы." },
+            { id: 2, tag: "🚀 Технологии", title: "Созданы новые солнечные панели", text: "Ученые нашли способ удвоить эффективность солнечной энергии при меньших затратах." },
+            { id: 3, tag: "❤️ Доброта", title: "Рекорд по устройству животных из приютов", text: "Все питомцы из городского центра нашли заботливых хозяев за прошедший месяц." },
+            { id: 4, tag: "🏆 Достижения", title: "Успех молодых разработчиков", text: "Школьники создали приложение, помогающее людям с ограниченными возможностями." },
+            { id: 5, tag: "🌟 Наука", title: "Открыта новая экзопланета с водой", text: "Астрономическая обсерватория зафиксировала планету с мягким климатом." },
+            { id: 6, tag: "🎨 Культура", title: "Бесплатный музейный квартал открыт", text: "В центре города заработала огромная выставка уличных художников и скульпторов." },
+            { id: 7, tag: "⚡ Энергетика", title: "Прорыв в области чистых батарей", text: "Инженеры разработали аккумуляторы, заряжающиеся за рекордные 5 минут." },
+            { id: 8, tag: "🏙️ Город", title: "Появились новые велодорожки", text: "Протяженность экологичного транспорта в мегаполисе выросла в три раза." },
+            { id: 9, tag: "📚 Образование", title: "Запущен бесплатный курс по программированию", text: "Тысячи студентов начали обучение разработке игр и сайтов с нуля." },
+            { id: 10, tag: "🐬 Природа", title: "Успешное возвращение редких видов в океан", text: "Экологи выпустили в естественную среду обитания группу спасенных дельфинов." },
+            { id: 11, tag: "🌐 Интернет", title: "Запущен глобальный проект бесплатного Wi-Fi", text: "В крупнейших парках страны появилась скоростная сеть для всех посетителей." },
+            { id: 12, tag: "🚗 Транспорт", title: "Презентован безопасный городской электрокар", text: "Новый компактный автомобиль получил максимальный рейтинг безопасности." },
+            { id: 13, tag: "🦾 Медицина", title: "Искусственный интеллект ускорил создание вакцин", text: "Лаборатории начали использовать нейросети для поиска новых лекарств." },
+            { id: 14, tag: "🏗️ Архитектура", title: "Построен первый дом из переработанного пластика", text: "Эко-здание выдерживает любые нагрузки и полностью сохраняет тепло." },
+            { id: 15, tag: "🌌 Космос", title: "Телескоп запечатлел рождение новой звезды", text: "Ученые получили уникальные снимки формирования молодой звездной системы." },
+            { id: 16, tag: "🍎 Здоровье", title: "Открыта сеть бесплатных спортивных секций", text: "Подростки получили доступ к современным тренажерам и секциям единоборств." },
+            { id: 17, tag: "🔋 Инновации", title: "Создан биоразлагаемый аккумулятор", text: "Новые батарейки полностью разлагаются в почве без вреда для экологии." },
+            { id: 18, tag: "🎭 Искусство", title: "Школьный театр выиграл международный грант", text: "Юные актеры смогут поставить масштабный мюзикл на профессиональной сцене." },
+            { id: 19, tag: "🚲 Спорт", title: "В городах прошла масштабная велоночь", text: "Тысячи любителей двухколесного транспорта проехали по центральным улицам." },
+            { id: 20, tag: "💡 Экономика", title: "Поддержаны проекты молодых социальных предпринимателей", text: "Государство выделило гранты на развитие инклюзивных бизнесов." }
         ];
 
-        const reactionTypes = [
-            { type: 'like', icon: '👍' },
-            { type: 'dislike', icon: '👎' },
-            { type: 'heart', icon: '❤️' },
-            { type: 'poop', icon: '💩' }
-        ];
+        async function initDailyFeed() {
+            const feed = document.getElementById('feed');
+            const dateText = document.getElementById('currentDateText');
+            
+            const today = new Date();
+            const dateString = today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+            dateText.innerText = `📅 Новости на сегодня: ${dateString}`;
 
-        let totalNewsCount = 0;
+            const startOfYear = new Date(today.getFullYear(), 0, 0);
+            const diff = (today - startOfYear) + ((startOfYear.getTimezoneOffset() - today.getTimezoneOffset()) * 60 * 1000);
+            const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-        function getSavedReactions() {
-            try {
-                return JSON.parse(localStorage.getItem('user_reactions')) || {};
-            } catch (e) {
-                return {};
-            }
-        }
+            feed.innerHTML = '';
 
-        function generateUniqueNews(index) {
-            const topic = topics[index % topics.length];
-            const titleIndex = (index * 3) % topic.titles.length;
-            const id = 'news_' + index;
+            // Получаем локальные отметки пользователя (какие кнопки он нажимал со своего телефона)
+            let userReactions = JSON.parse(localStorage.getItem('user_clicked') || '{}');
 
-            return {
-                id: id,
-                tag: topic.tag,
-                title: topic.titles[titleIndex],
-                text: topic.texts[titleIndex],
-                time: 'Сегодня, ' + (12 + (index % 10)) + ':' + ((index * 17) % 60).toString().padStart(2, '0')
-            };
-        }
-
-        function loadMoreNews(count = 4) {
-            const feed = document.getElementById('news-feed');
-            for (let i = 0; i < count; i++) {
-                const item = generateUniqueNews(totalNewsCount);
-                totalNewsCount++;
-
+            for (let i = 0; i < allNewsDatabase.length; i++) {
+                const newsIndex = (dayOfYear + i) % allNewsDatabase.length;
+                const item = allNewsDatabase[newsIndex];
+                const docId = `news_${item.id}`;
+                
                 const card = document.createElement('div');
                 card.className = 'news-card';
-                
-                const savedReactions = getSavedReactions();
-                const userReaction = savedReactions[item.id] || null;
-
                 card.innerHTML = `
-                    <span class="news-tag">${item.tag} • ${item.time}</span>
-                    <h2 class="news-title">${item.title}</h2>
-                    <p class="news-text">${item.text}</p>
-                    
-                    <div class="reactions-bar">
-                        ${reactionTypes.map(r => `
-                            <button class="reaction-btn ${userReaction === r.type ? 'active' : ''}" 
-                                    data-type="${r.type}" 
-                                    data-id="${item.id}"
-                                    data-reaction="${r.type}">
-                                <span>${r.icon}</span>
-                                <span class="count-span">${userReaction === r.type ? 1 : 0}</span>
-                            </button>
-                        `).join('')}
+                    <span class="news-tag">${item.tag}</span>
+                    <div class="news-title">${item.title}</div>
+                    <div class="news-text">${item.text}</div>
+                    <div class="reactions" data-id="${item.id}">
+                        <button class="react-btn ${userReactions[`${docId}_👍`] ? 'active' : ''}" id="btn_${docId}_👍" onclick="window.handleReaction(${item.id}, '👍', event)">👍 <span id="count_${docId}_👍">0</span></button>
+                        <button class="react-btn ${userReactions[`${docId}_👎`] ? 'active' : ''}" id="btn_${docId}_👎" onclick="window.handleReaction(${item.id}, '👎', event)">👎 <span id="count_${docId}_👎">0</span></button>
+                        <button class="react-btn ${userReactions[`${docId}_❤️`] ? 'active' : ''}" id="btn_${docId}_❤️" onclick="window.handleReaction(${item.id}, '❤️', event)">❤️ <span id="count_${docId}_❤️">0</span></button>
+                        <button class="react-btn ${userReactions[`${docId}_💩`] ? 'active' : ''}" id="btn_${docId}_💩" onclick="window.handleReaction(${item.id}, '💩', event)">💩 <span id="count_${docId}_💩">0</span></button>
                     </div>
                 `;
                 feed.appendChild(card);
-            }
-        }
 
-        function refreshFeed() {
-            const feed = document.getElementById('news-feed');
-            feed.innerHTML = '';
-            totalNewsCount = 0;
-            loadMoreNews(4);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function toggleReaction(btn, id, type) {
-            const parent = btn.parentElement;
-            const savedReactions = getSavedReactions();
-
-            if (savedReactions[id] === type) {
-                delete savedReactions[id];
-                btn.classList.remove('active');
-                btn.querySelector('.count-span').innerText = '0';
-            } else {
-                parent.querySelectorAll('.reaction-btn').forEach(b => {
-                    b.classList.remove('active');
-                    b.querySelector('.count-span').innerText = '0';
+                // Подписываемся на изменения в реальном времени для каждой новости из Firebase Firestore
+                const docRef = doc(db, "reactions", docId);
+                onSnapshot(docRef, async (docSnap) => {
+                    if (!docSnap.exists()) {
+                        // Если документа еще нет в облаке, создаем с нулями
+                        await setDoc(docRef, { '👍': 0, '👎': 0, '❤️': 0, '💩': 0 });
+                    } else {
+                        const data = docSnap.data();
+                        ['👍', '👎', '❤️', '💩'].forEach(emoji => {
+                            const countSpan = document.getElementById(`count_${docId}_${emoji}`);
+                            if (countSpan) countSpan.innerText = data[emoji] || 0;
+                        });
+                    }
                 });
-
-                savedReactions[id] = type;
-                btn.classList.add('active');
-                btn.querySelector('.count-span').innerText = '1';
-
-                if (type === 'like') spawnParticles(btn, ['👍', '✨']);
-                if (type === 'dislike') spawnParticles(btn, ['👎', '🌧️']);
-                if (type === 'heart') spawnParticles(btn, ['💖', '❤️']);
-                if (type === 'poop') spawnParticles(btn, ['💩']);
-            }
-
-            localStorage.setItem('user_reactions', JSON.stringify(savedReactions));
-        }
-
-        function spawnParticles(element, chars) {
-            const rect = element.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-
-            for (let i = 0; i < 5; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'flying-particle';
-                particle.innerText = chars[Math.floor(Math.random() * chars.length)];
-                particle.style.left = centerX + 'px';
-                particle.style.top = centerY + 'px';
-
-                const dx = (Math.random() - 0.5) * 140 + 'px';
-                const dy = (Math.random() - 0.7) * 160 + 'px';
-                const rot = (Math.random() - 0.5) * 50 + 'deg';
-
-                particle.style.setProperty('--dx', dx);
-                particle.style.setProperty('--dy', dy);
-                particle.style.setProperty('--rot', rot);
-
-                document.body.appendChild(particle);
-                setTimeout(() => particle.remove(), 800);
             }
         }
 
-        // Инициализация после загрузки страницы
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('refreshBtn').addEventListener('click', refreshFeed);
-            document.getElementById('loadMoreBtn').addEventListener('click', () => loadMoreNews(3));
-            document.getElementById('scrollTopBtn').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        // Глобальная функция клика по реакциям
+        window.handleReaction = async function(newsId, emoji, event) {
+            event.stopPropagation();
+            const docId = `news_${newsId}`;
+            const btnKey = `${docId}__${emoji}`;
+            const btn = document.getElementById(`btn_${docId}_${emoji}`);
             
-            document.getElementById('openDonateBtn').addEventListener('click', () => {
-                document.getElementById('donateModal').style.display = 'flex';
-                setTimeout(() => document.getElementById('customAmount').focus(), 100);
-            });
+            let userReactions = JSON.parse(localStorage.getItem('user_clicked') || '{}');
+            const isCurrentlyActive = !!userReactions[btnKey];
 
-            document.getElementById('closeModalBtn').addEventListener('click', () => {
-                document.getElementById('donateModal').style.display = 'none';
-            });
+            // Меняем локальное состояние кнопки и сохраняем в localStorage телефона
+            userReactions[btnKey] = !isCurrentlyActive;
+            localStorage.setItem('user_clicked', JSON.stringify(userReactions));
 
-            document.getElementById('payBtn').addEventListener('click', () => {
-                const amount = document.getElementById('customAmount').value;
-                if (!amount || amount <= 0) {
-                    alert('Укажите сумму поддержки');
-                    return;
-                }
-                alert(`Спасибо! Переход к оплате на сумму ${amount} ₽`);
-                document.getElementById('donateModal').style.display = 'none';
-            });
+            if (!isCurrentlyActive) {
+                btn.classList.add('active');
+                spawnSparkles(btn, emoji);
+            } else {
+                btn.classList.remove('active');
+            }
 
-            document.getElementById('news-feed').add
+            // Отправляем инкремент (+1) или декремент (-1) в облачную базу данных Firebase
+            const docRef = doc(db, "reactions", docId);
+            try {
+                await updateDoc(docRef, {
+                    [emoji]: increment(isCurrentlyActive ? -1 : 1)
+                });
+            } catch (err) {
+                // Если документ случайно не успел создаться
+                await setDoc(docRef, { [emoji]: isCurrentlyActive ? 0 : 1 }, { merge: true });
+            }
+        };
+
+        function spawnSparkles(button, emoji) {
+            const rect = button.getBoundingClientRect();
+            const startX = rect.left + window.pageXOffset + rect.width / 2;
+            const startY = rect.top + window.pageYOffset + rect.height / 2;
+
+            for (let i = 0; i < 4; i++) {
+                const spark = document.createElement('div');
+                spark.className = 'sparkle';
+                spark.innerText = emoji;
+                spark.style.left = `${startX}px`;
+                spark.style.top = `${startY}px`;
+
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 30 + Math.random() * 40;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance - 20;
+
+                spark.style.setProperty('--tx', `${tx}px`);
+                spark.style.setProperty('--ty', `${ty}px`);
+
+                document.body.appendChild(spark);
+                setTimeout(() => spark.remove(), 600);
+            }
+        }
+
+        window.addEventListener('pointerdown', (event) => {
+            if (event.target.tagName === 'BUTTON' || event.target.closest('button')) return;
+
+            const symbols = ['✨', '💖', '⭐', '🎈', '🔥'];
+            const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+
+            const elem = document.createElement('div');
+            elem.className = 'click-effect';
+            elem.innerText = randomSymbol;
+            elem.style.left = `${event.pageX - 10}px`;
+            elem.style.top = `${event.pageY - 10}px`;
+
+            document.body.appendChild(elem);
+            setTimeout(() => elem.remove(), 600);
+        });
+
+        window.onload = initDailyFeed;
+    </script>
+</body>
+</html>
