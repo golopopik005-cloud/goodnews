@@ -143,6 +143,7 @@
             font-weight: 700;
             line-height: 1.4;
             margin-bottom: 10px;
+            color: #f1f5f9;
         }
 
         .news-text {
@@ -361,21 +362,21 @@
             <span class="butterfly-icon right">🦋</span>
         </div>
         <div class="subtitle">Бесконечный поток позитива</div>
-        <button class="donate-header-btn" onclick="openDonateModal()">☕ Поддержать проект</button>
+        <button class="donate-header-btn" id="openDonateBtn">☕ Поддержать проект</button>
     </header>
 
     <div class="container">
-        <button class="refresh-btn" onclick="refreshFeed()">🔄 Обновить ленту</button>
+        <button class="refresh-btn" id="refreshBtn">🔄 Обновить ленту</button>
         <div id="news-feed"></div>
-        <button class="load-more-btn" onclick="loadMoreNews()">➕ Загрузить ещё новости</button>
+        <button class="load-more-btn" id="loadMoreBtn">➕ Загрузить ещё новости</button>
     </div>
 
-    <button class="scroll-top-btn" id="scrollTopBtn" onclick="scrollToTop()">⬆️</button>
+    <button class="scroll-top-btn" id="scrollTopBtn">⬆️</button>
 
     <div class="modal-overlay" id="donateModal">
         <div class="modal">
-            <button class="close-btn" onclick="closeDonateModal()">✕</button>
-            <h2 style="margin-bottom: 8px;">Поддержать проект ☕</h2>
+            <button class="close-btn" id="closeModalBtn">✕</button>
+            <h2 style="margin-bottom: 8px; color: #f1f5f9;">Поддержать проект ☕</h2>
             <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 20px;">
                 Введите любую сумму поддержки:
             </p>
@@ -385,7 +386,7 @@
                 <span class="currency-symbol">₽</span>
             </div>
 
-            <button class="pay-btn" onclick="processPayment()">Поддержать 💳</button>
+            <button class="pay-btn" id="payBtn">Поддержать 💳</button>
         </div>
     </div>
 
@@ -393,29 +394,43 @@
         const topics = [
             { 
                 tag: "🌿 Экология", 
-                titles: ["Восстановление лесных массивов", "Очистка океана от пластика", "Спасение редких видов попугаев"], 
+                titles: [
+                    "Восстановление масштабных лесных массивов завершилось успехом", 
+                    "Успешная очистка прибрежных зон океана от пластика", 
+                    "Беспрецедентный рост популяции редких видов птиц в заповеднике",
+                    "Новый эко-парк открылся в столице благодаря волонтерам"
+                ], 
                 texts: [
-                    "Экологи провели масштабную акцию, высадив более 100 тысяч саженцев хвойных деревьев. Проект направлен на восстановление природного баланса региона и уже привлек внимание сотен волонтеров со всей страны.", 
-                    "Новейшие автономные дроны-сборщики показали 95% эффективность на глубоководных испытаниях. Ученые планируют запустить целую флотилию таких аппаратов уже в следующем году для спасения коралловых рифов.", 
-                    "Число молодых особей ара в главном заповеднике достигло исторического максимума. Орнитологи отмечают, что благодаря новой программе защиты гнезд популяция выросла на 30% всего за пару лет."
+                    "Экологи провели масштабную акцию, высадив более 100 тысяч саженцев хвойных деревьев. Проект направлен на восстановление природного баланса региона.", 
+                    "Новейшие автономные дроны-сборщики показали высокую эффективность на глубоководных испытаниях по очистке океана.", 
+                    "Число молодых особей в главном заповеднике достигло исторического максимума благодаря новой программе защиты гнезд.",
+                    "Жители города объединили усилия и превратили заброшенный пустырь в цветущую зеленую зону с зонами отдыха."
                 ] 
             },
             { 
                 tag: "🚀 Технологии", 
-                titles: ["Прорыв в солнечной энергетике", "Медицинский робот нового поколения", "ИИ помог расшифровать древние рукописи"], 
+                titles: [
+                    "Ученые совершили прорыв в солнечной энергетике", 
+                    "Медицинский робот нового поколения спас тысячи жизней", 
+                    "ИИ помог расшифровать древние рукописи за считанные часы"
+                ], 
                 texts: [
-                    "Инженеры разработали новый тип панелей, которые увеличивают КПД солнечных батарей в два раза. При этом себестоимость производства снизилась, что сделает зеленую энергию доступной для каждого дома.", 
-                    "Новая разработка позволяет проводить сложнейшие микрохирургические операции на сосудах с точностью до микрона. Роботом управляет хирург через VR-шлем, находясь за тысячи километров от пациента.", 
-                    "Нейросеть за несколько часов проанализировала и перевела свитки, которые лингвисты не могли расшифровать десятилетиями. Технология открыла удивительные подробности быта древних цивилизаций."
+                    "Инженеры разработали новый тип панелей, которые увеличивают КПД солнечных батарей в два раза при меньшей стоимости.", 
+                    "Новая разработка позволяет проводить сложнейшие микрохирургические операции с ювелирной точностью.", 
+                    "Нейросеть за несколько часов проанализировала и перевела свитки, которые лингвисты не могли расшифровать десятилетиями."
                 ] 
             },
             { 
                 tag: "❤️ Доброта", 
-                titles: ["Школьники создали эко-проект", "Бесплатная помощь животным", "Городской парк восстановили волонтеры"], 
+                titles: [
+                    "Школьники создали уникальный эко-проект для помощи городу", 
+                    "Приют для животных нашел дом для сотен питомцев за месяц", 
+                    "Городской парк полностью восстановили силами добровольцев"
+                ], 
                 texts: [
-                    "Местная молодежь организовала масштабный сбор пластика и макулатуры. На вырученные от переработки средства ребята закупили материалы и своими силами построили современную детскую площадку.", 
-                    "Группа инициативных ветеринаров провела серию бесплатных осмотров и вакцинаций на выходных. Благодаря их усилиям и помощи соцсетей, новый любящий дом удалось найти для 45 пушистых пациентов.", 
-                    "Более 500 неравнодушных жителей собрались вместе, чтобы очистить заброшенный сквер, высадить новые аллеи и разбить клумбы. Теперь это самое популярное место отдыха для семей с детьми."
+                    "На вырученные от сбора макулатуры средства ребята построили современную спортивную площадку.", 
+                    "Благодаря активной поддержке в соцсетях, новый любящий дом удалось найти для десятков пушистых пациентов.", 
+                    "Более 500 неравнодушных жителей собрались вместе, чтобы очистить сквер и высадить новые аллеи."
                 ] 
             }
         ];
@@ -439,20 +454,20 @@
 
         function generateUniqueNews(index) {
             const topic = topics[index % topics.length];
-            const titleIndex = index % topic.titles.length;
-            const id = 'news_' + (index + 1);
+            const titleIndex = (index * 3) % topic.titles.length;
+            const id = 'news_' + index;
 
             return {
                 id: id,
                 tag: topic.tag,
                 title: topic.titles[titleIndex],
-                text: topic.texts[titleIndex]
+                text: topic.texts[titleIndex],
+                time: 'Сегодня, ' + (12 + (index % 10)) + ':' + ((index * 17) % 60).toString().padStart(2, '0')
             };
         }
 
-        function loadMoreNews(count = 3) {
+        function loadMoreNews(count = 4) {
             const feed = document.getElementById('news-feed');
-            
             for (let i = 0; i < count; i++) {
                 const item = generateUniqueNews(totalNewsCount);
                 totalNewsCount++;
@@ -464,7 +479,7 @@
                 const userReaction = savedReactions[item.id] || null;
 
                 card.innerHTML = `
-                    <span class="news-tag">${item.tag}</span>
+                    <span class="news-tag">${item.tag} • ${item.time}</span>
                     <h2 class="news-title">${item.title}</h2>
                     <p class="news-text">${item.text}</p>
                     
@@ -472,7 +487,8 @@
                         ${reactionTypes.map(r => `
                             <button class="reaction-btn ${userReaction === r.type ? 'active' : ''}" 
                                     data-type="${r.type}" 
-                                    onclick="toggleReaction(event, '${item.id}', '${r.type}')">
+                                    data-id="${item.id}"
+                                    data-reaction="${r.type}">
                                 <span>${r.icon}</span>
                                 <span class="count-span">${userReaction === r.type ? 1 : 0}</span>
                             </button>
@@ -488,11 +504,10 @@
             feed.innerHTML = '';
             totalNewsCount = 0;
             loadMoreNews(4);
-            scrollToTop();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function toggleReaction(event, id, type) {
-            const btn = event.currentTarget;
+        function toggleReaction(btn, id, type) {
             const parent = btn.parentElement;
             const savedReactions = getSavedReactions();
 
@@ -524,19 +539,16 @@
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
 
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < 5; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'flying-particle';
-                
-                const char = chars[Math.floor(Math.random() * chars.length)];
-                particle.innerText = char;
-
+                particle.innerText = chars[Math.floor(Math.random() * chars.length)];
                 particle.style.left = centerX + 'px';
                 particle.style.top = centerY + 'px';
 
-                const dx = (Math.random() - 0.5) * 160 + 'px';
-                const dy = (Math.random() - 0.7) * 180 + 'px';
-                const rot = (Math.random() - 0.5) * 60 + 'deg';
+                const dx = (Math.random() - 0.5) * 140 + 'px';
+                const dy = (Math.random() - 0.7) * 160 + 'px';
+                const rot = (Math.random() - 0.5) * 50 + 'deg';
 
                 particle.style.setProperty('--dx', dx);
                 particle.style.setProperty('--dy', dy);
@@ -547,43 +559,29 @@
             }
         }
 
-        const scrollTopBtn = document.getElementById('scrollTopBtn');
+        // Инициализация после загрузки страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('refreshBtn').addEventListener('click', refreshFeed);
+            document.getElementById('loadMoreBtn').addEventListener('click', () => loadMoreNews(3));
+            document.getElementById('scrollTopBtn').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            
+            document.getElementById('openDonateBtn').addEventListener('click', () => {
+                document.getElementById('donateModal').style.display = 'flex';
+                setTimeout(() => document.getElementById('customAmount').focus(), 100);
+            });
 
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) {
-                scrollTopBtn.classList.add('visible');
-            } else {
-                scrollTopBtn.classList.remove('visible');
-            }
-        });
+            document.getElementById('closeModalBtn').addEventListener('click', () => {
+                document.getElementById('donateModal').style.display = 'none';
+            });
 
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+            document.getElementById('payBtn').addEventListener('click', () => {
+                const amount = document.getElementById('customAmount').value;
+                if (!amount || amount <= 0) {
+                    alert('Укажите сумму поддержки');
+                    return;
+                }
+                alert(`Спасибо! Переход к оплате на сумму ${amount} ₽`);
+                document.getElementById('donateModal').style.display = 'none';
+            });
 
-        function openDonateModal() {
-            const modal = document.getElementById('donateModal');
-            modal.style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('customAmount').focus();
-            }, 100);
-        }
-
-        function closeDonateModal() {
-            document.getElementById('donateModal').style.display = 'none';
-        }
-
-        function processPayment() {
-            const amount = document.getElementById('customAmount').value;
-            if (!amount || amount <= 0) {
-                alert('Укажите сумму поддержки');
-                return;
-            }
-            alert(`Переход к оплате на сумму ${amount} ₽!`);
-            closeDonateModal();
-        }
-
-        loadMoreNews(4);
-    </script>
-</body>
-</html>
+            document.getElementById('news-feed').add
