@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodNews — Бесконечная Лента</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            padding-bottom: 40px;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .butterfly-icon {
+            display: inline-block;
+            font-size: 1.4rem;
+            animation: flutter 2s infinite ease-in-out;
+        }
+
+        .butterfly-icon.right {
+            animation-delay: 1s;
+        }
+
+        @keyframes flutter {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.15) rotate(12deg); }
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+
+        .donate-header-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .donate-header-btn:active {
+            transform: scale(0.95);
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            background: #1e293b;
+            border: 1px solid #38bdf8;
+            color: #38bdf8;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.97);
+        }
+
+        .news-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #334155;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .news-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .news-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .news-text {
+            color: #94a3b8;
+            font-size: 0.92rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .reactions-bar {
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid #334155;
+            padding-top: 12px;
+            justify-content: space-between;
+        }
+
+        .reaction-btn {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex: 1;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .reaction-btn:active {
+            transform: scale(0.92);
+        }
+
+        .reaction-btn.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+
+        .reaction-btn.active[data-type="dislike"] {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: #ef4444;
+            color: #f87171;
+        }
+
+        .reaction-btn.active[data-type="poop"] {
+            background: rgba(217, 119, 6, 0.2);
+            border-color: #d97706;
+            color: #f59e0b;
+        }
+
+        .reaction-btn.active[data-type="heart"] {
+            background: rgba(236, 72, 153, 0.2);
+            border-color: #ec4899;
+            color: #f43f5e;
+        }
+
+        .flying-particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 20px;
+            z-index: 9999;
+            animation: fly 0.8s ease-out forwards;
+        }
+
+        @keyframes fly {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.5) rotate(var(--rot)); }
+        }
+
+        .load-more-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 20px 0;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .scroll-top-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            color: white;
+            border: none;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 900;
+        }
+
+        .scroll-top-btn.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 360px;
+            width: 100%;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            text-align: center;
+            position: relative;
+            animation: modalPop 0.3s ease;
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .custom-input {
+            width: 100%;
+            padding: 16px 45px 16px 20px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: bold;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .custom-input:focus {
+            border-color: #f59e0b;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            right: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #94a3b8;
+        }
+
+        .pay-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <span class="butterfly-icon">🦋</span>
+            <span>GoodNews Live</span>
+            <span class="butterfly-icon right">🦋</span>
+        </div>
+        <div class="subtitle">Бесконечный поток позитива</div>
+        <button class="donate-header-btn" onclick="openDonateModal()">☕ Поддержать проект</button>
+    </header>
+
+    <div class="container">
+        <button class="refresh-btn" onclick="refreshFeed()">🔄 Обновить ленту</button>
+        <div id="news-feed"></div>
+        <button class="load-more-btn" onclick="loadMoreNews()">➕ Загрузить ещё новости</button>
+    </div>
+
+    <button class="scroll-top-btn" id="scrollTopBtn" onclick="scrollToTop()">⬆️</button>
+
+    <div class="modal-overlay" id="donateModal">
+        <div class="modal">
+            <button class="close-btn" onclick="closeDonateModal()">✕</button>
+            <h2 style="margin-bottom: 8px;">Поддержать проект ☕</h2>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 20px;">
+                Введите любую сумму поддержки:
+            </p>
+
+            <div class="input-wrapper">
+                <input type="number" id="customAmount" class="custom-input" placeholder="0" min="1">
+                <span class="currency-symbol">₽</span>
+            </div>
+
+            <button class="pay-btn" onclick="processPayment()">Поддержать 💳</button>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            { 
+                tag: "🌿 Экология", 
+                titles: ["Восстановление лесных массивов", "Очистка океана от пластика", "Спасение редких видов попугаев"], 
+                texts: [
+                    "Экологи провели масштабную акцию, высадив более 100 тысяч саженцев хвойных деревьев. Проект направлен на восстановление природного баланса региона и уже привлек внимание сотен волонтеров со всей страны.", 
+                    "Новейшие автономные дроны-сборщики показали 95% эффективность на глубоководных испытаниях. Ученые планируют запустить целую флотилию таких аппаратов уже в следующем году для спасения коралловых рифов.", 
+                    "Число молодых особей ара в главном заповеднике достигло исторического максимума. Орнитологи отмечают, что благодаря новой программе защиты гнезд популяция выросла на 30% всего за пару лет."
+                ] 
+            },
+            { 
+                tag: "🚀 Технологии", 
+                titles: ["Прорыв в солнечной энергетике", "Медицинский робот нового поколения", "ИИ помог расшифровать древние рукописи"], 
+                texts: [
+                    "Инженеры разработали новый тип панелей, которые увеличивают КПД солнечных батарей в два раза. При этом себестоимость производства снизилась, что сделает зеленую энергию доступной для каждого дома.", 
+                    "Новая разработка позволяет проводить сложнейшие микрохирургические операции на сосудах с точностью до микрона. Роботом управляет хирург через VR-шлем, находясь за тысячи километров от пациента.", 
+                    "Нейросеть за несколько часов проанализировала и перевела свитки, которые лингвисты не могли расшифровать десятилетиями. Технология открыла удивительные подробности быта древних цивилизаций."
+                ] 
+            },
+            { 
+                tag: "❤️ Доброта", 
+                titles: ["Школьники создали эко-проект", "Бесплатная помощь животным", "Городской парк восстановили волонтеры"], 
+                texts: [
+                    "Местная молодежь организовала масштабный сбор пластика и макулатуры. На вырученные от переработки средства ребята закупили материалы и своими силами построили современную детскую площадку.", 
+                    "Группа инициативных ветеринаров провела серию бесплатных осмотров и вакцинаций на выходных. Благодаря их усилиям и помощи соцсетей, новый любящий дом удалось найти для 45 пушистых пациентов.", 
+                    "Более 500 неравнодушных жителей собрались вместе, чтобы очистить заброшенный сквер, высадить новые аллеи и разбить клумбы. Теперь это самое популярное место отдыха для семей с детьми."
+                ] 
+            }
+        ];
+
+        const reactionTypes = [
+            { type: 'like', icon: '👍' },
+            { type: 'dislike', icon: '👎' },
+            { type: 'heart', icon: '❤️' },
+            { type: 'poop', icon: '💩' }
+        ];
+
+        let totalNewsCount = 0;
+
+        function getSavedReactions() {
+            try {
+                return JSON.parse(localStorage.getItem('user_reactions')) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function generateUniqueNews(index) {
+            const topic = topics[index % topics.length];
+            const titleIndex = index % topic.titles.length;
+            const id = 'news_' + (index + 1);
+
+            return {
+                id: id,
+                tag: topic.tag,
+                title: topic.titles[titleIndex],
+                text: topic.texts[titleIndex]
+            };
+        }
+
+        function loadMoreNews(count = 3) {
+            const feed = document.getElementById('news-feed');
+            
+            for (let i = 0; i < count; i++) {
+                const item = generateUniqueNews(totalNewsCount);
+                totalNewsCount++;
+
+                const card = document.createElement('div');
+                card.className = 'news-card';
+                
+                const savedReactions = getSavedReactions();
+                const userReaction = savedReactions[item.id] || null;
+
+                card.innerHTML = `
+                    <span class="news-tag">${item.tag}</span>
+                    <h2 class="news-title">${item.title}</h2>
+                    <p class="news-text">${item.text}</p>
+                    
+                    <div class="reactions-bar">
+                        ${reactionTypes.map(r => `
+                            <button class="reaction-btn ${userReaction === r.type ? 'active' : ''}" 
+                                    data-type="${r.type}" 
+                                    onclick="toggleReaction(event, '${item.id}', '${r.type}')">
+                                <span>${r.icon}</span>
+                                <span class="count-span">${userReaction === r.type ? 1 : 0}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                feed.appendChild(card);
+            }
+        }
+
+        function refreshFeed() {
+            const feed = document.getElementById('news-feed');
+            feed.innerHTML = '';
+            totalNewsCount = 0;
+            loadMoreNews(4);
+            scrollToTop();
+        }
+
+        function toggleReaction(event, id, type) {
+            const btn = event.currentTarget;
+            const parent = btn.parentElement;
+            const savedReactions = getSavedReactions();
+
+            if (savedReactions[id] === type) {
+                delete savedReactions[id];
+                btn.classList.remove('active');
+                btn.querySelector('.count-span').innerText = '0';
+            } else {
+                parent.querySelectorAll('.reaction-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.querySelector('.count-span').innerText = '0';
+                });
+
+                savedReactions[id] = type;
+                btn.classList.add('active');
+                btn.querySelector('.count-span').innerText = '1';
+
+                if (type === 'like') spawnParticles(btn, ['👍', '✨']);
+                if (type === 'dislike') spawnParticles(btn, ['👎', '🌧️']);
+                if (type === 'heart') spawnParticles(btn, ['💖', '❤️']);
+                if (type === 'poop') spawnParticles(btn, ['💩']);
+            }
+
+            localStorage.setItem('user_reactions', JSON.stringify(savedReactions));
+        }
+
+        function spawnParticles(element, chars) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 6; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'flying-particle';
+                
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                particle.innerText = char;
+
+                particle.style.left = centerX + 'px';
+                particle.style.top = centerY + 'px';
+
+                const dx = (Math.random() - 0.5) * 160 + 'px';
+                const dy = (Math.random() - 0.7) * 180 + 'px';
+                const rot = (Math.random() - 0.5) * 60 + 'deg';
+
+                particle.style.setProperty('--dx', dx);
+                particle.style.setProperty('--dy', dy);
+                particle.style.setProperty('--rot', rot);
+
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 800);
+            }
+        }
+
+        const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openDonateModal() {
+            const modal = document.getElementById('donateModal');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('customAmount').focus();
+            }, 100);
+        }
+
+        function closeDonateModal() {
+            document.getElementById('donateModal').style.display = 'none';
+        }
+
+        function processPayment() {
+            const amount = document.getElementById('customAmount').value;
+            if (!amount || amount <= 0) {
+                alert('Укажите сумму поддержки');
+                return;
+            }
+            alert(`Переход к оплате на сумму ${amount} ₽!`);
+            closeDonateModal();
+        }
+
+        loadMoreNews(4);
+    </script>
+</body>
+</html>
