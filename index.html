@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GoodNews Live</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -20,7 +24,6 @@
             user-select: none;
             -webkit-user-select: none;
         }
-        
         header {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             padding: 24px 20px;
@@ -30,7 +33,6 @@
             top: 0;
             z-index: 100;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            transform: translateZ(0);
         }
         .logo-wrapper {
             display: inline-flex;
@@ -49,7 +51,6 @@
             font-size: 1.3rem;
             animation: flutter 2s infinite ease-in-out;
             display: inline-block;
-            will-change: transform;
         }
         .butterfly.right {
             animation-delay: 1s;
@@ -64,27 +65,30 @@
             font-size: 0.85rem;
             margin-bottom: 14px;
         }
-        .donate-btn {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .donate-btn:active {
-            transform: scale(0.93);
-            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
-        }
-
         .container {
             max-width: 500px;
             margin: 0 auto;
             padding: 20px;
+        }
+        .start-box {
+            background: #1e293b;
+            border: 2px dashed #38bdf8;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .start-btn {
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+            margin-top: 15px;
         }
         .info-date {
             background: #1e293b;
@@ -96,7 +100,6 @@
             font-size: 0.9rem;
             font-weight: bold;
             margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .news-card {
             background: #1e293b;
@@ -106,15 +109,23 @@
             border: 1px solid #334155;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
+        .news-header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
         .news-tag {
             font-size: 0.75rem;
             color: #38bdf8;
             background: rgba(56, 189, 248, 0.12);
             padding: 4px 10px;
             border-radius: 10px;
-            display: inline-block;
-            margin-bottom: 10px;
             font-weight: 600;
+        }
+        .news-pubdate {
+            font-size: 0.75rem;
+            color: #64748b;
         }
         .news-title {
             font-size: 1.1rem;
@@ -127,7 +138,43 @@
             color: #94a3b8;
             font-size: 0.9rem;
             line-height: 1.5;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
+        }
+        .news-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+            opacity: 0;
+            color: #cbd5e1;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            border-left: 2px solid #38bdf8;
+            padding-left: 12px;
+        }
+        .news-card.open .news-details {
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 12px;
+            margin-bottom: 10px;
+        }
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #38bdf8;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 2px 0;
+            margin-bottom: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .expand-btn span {
+            transition: transform 0.3s;
+        }
+        .news-card.open .expand-btn span {
+            transform: rotate(180deg);
         }
         .reactions {
             display: flex;
@@ -149,41 +196,12 @@
             justify-content: center;
             align-items: center;
             gap: 4px;
-            position: relative;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .react-btn:active {
-            transform: scale(0.8);
         }
         .react-btn.active {
             background: rgba(56, 189, 248, 0.2);
             border-color: #38bdf8;
             color: #38bdf8;
             transform: scale(1.05);
-        }
-
-        .sparkle {
-            position: absolute;
-            pointer-events: none;
-            font-size: 1rem;
-            animation: sparkFly 0.6s ease-out forwards;
-            z-index: 1000;
-        }
-        @keyframes sparkFly {
-            0% { opacity: 1; transform: translate(0, 0) scale(0.5); }
-            100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(1.3); }
-        }
-
-        .click-effect {
-            position: absolute;
-            pointer-events: none;
-            font-size: 1.2rem;
-            animation: floatUp 0.6s ease-out forwards;
-            z-index: 9999;
-        }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-50px) scale(1.4); }
         }
     </style>
 </head>
@@ -196,19 +214,19 @@
             <span class="butterfly right">🦋</span>
         </div>
         <div class="subtitle">Ежедневный поток позитива</div>
-        <button class="donate-btn" onclick="alert('Спасибо за поддержку!')">☕ Поддержать проект</button>
     </header>
 
     <div class="container">
-        <div class="info-date" id="currentDateText">📅 Загрузка даты...</div>
+        <div id="startScreen" class="start-box">
+            <p style="color: #cbd5e1; margin-bottom: 10px; font-size: 0.95rem;">Нажмите кнопку, чтобы загрузить и обновить ленту новостей:</p>
+            <button class="start-btn" onclick="syncAndLoadFeed()">🚀 Обновить и загрузить ленту</button>
+        </div>
+
+        <div class="info-date" id="currentDateText" style="display:none;"></div>
         <div id="feed"></div>
     </div>
 
-    <!-- Firebase SDK (модульная версия) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBljsHsWi0m3VKQ2FDqR5YPapLv-c6yLS4",
             authDomain: "mir-dobro.firebaseapp.com",
@@ -219,161 +237,154 @@
             measurementId: "G-XEQYQRK03G"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
 
-        const allNewsDatabase = [
-            { id: 1, tag: "🌿 Экология", title: "Масштабная высадка леса завершена", text: "Волонтеры успешно посадили более 100 тысяч деревьев для восстановления природы." },
-            { id: 2, tag: "🚀 Технологии", title: "Созданы новые солнечные панели", text: "Ученые нашли способ удвоить эффективность солнечной энергии при меньших затратах." },
-            { id: 3, tag: "❤️ Доброта", title: "Рекорд по устройству животных из приютов", text: "Все питомцы из городского центра нашли заботливых хозяев за прошедший месяц." },
-            { id: 4, tag: "🏆 Достижения", title: "Успех молодых разработчиков", text: "Школьники создали приложение, помогающее людям с ограниченными возможностями." },
-            { id: 5, tag: "🌟 Наука", title: "Открыта новая экзопланета с водой", text: "Астрономическая обсерватория зафиксировала планету с мягким климатом." },
-            { id: 6, tag: "🎨 Культура", title: "Бесплатный музейный квартал открыт", text: "В центре города заработала огромная выставка уличных художников и скульпторов." },
-            { id: 7, tag: "⚡ Энергетика", title: "Прорыв в области чистых батарей", text: "Инженеры разработали аккумуляторы, заряжающиеся за рекордные 5 минут." },
-            { id: 8, tag: "🏙️ Город", title: "Появились новые велодорожки", text: "Протяженность экологичного транспорта в мегаполисе выросла в три раза." },
-            { id: 9, tag: "📚 Образование", title: "Запущен бесплатный курс по программированию", text: "Тысячи студентов начали обучение разработке игр и сайтов с нуля." },
-            { id: 10, tag: "🐬 Природа", title: "Успешное возвращение редких видов в океан", text: "Экологи выпустили в естественную среду обитания группу спасенных дельфинов." },
-            { id: 11, tag: "🌐 Интернет", title: "Запущен глобальный проект бесплатного Wi-Fi", text: "В крупнейших парках страны появилась скоростная сеть для всех посетителей." },
-            { id: 12, tag: "🚗 Транспорт", title: "Презентован безопасный городской электрокар", text: "Новый компактный автомобиль получил максимальный рейтинг безопасности." },
-            { id: 13, tag: "🦾 Медицина", title: "Искусственный интеллект ускорил создание вакцин", text: "Лаборатории начали использовать нейросети для поиска новых лекарств." },
-            { id: 14, tag: "🏗️ Архитектура", title: "Построен первый дом из переработанного пластика", text: "Эко-здание выдерживает любые нагрузки и полностью сохраняет тепло." },
-            { id: 15, tag: "🌌 Космос", title: "Телескоп запечатлел рождение новой звезды", text: "Ученые получили уникальные снимки формирования молодой звездной системы." },
-            { id: 16, tag: "🍎 Здоровье", title: "Открыта сеть бесплатных спортивных секций", text: "Подростки получили доступ к современным тренажерам и секциям единоборств." },
-            { id: 17, tag: "🔋 Инновации", title: "Создан биоразлагаемый аккумулятор", text: "Новые батарейки полностью разлагаются в почве без вреда для экологии." },
-            { id: 18, tag: "🎭 Искусство", title: "Школьный театр выиграл международный грант", text: "Юные актеры смогут поставить масштабный мюзикл на профессиональной сцене." },
-            { id: 19, tag: "🚲 Спорт", title: "В городах прошла масштабная велоночь", text: "Тысячи любителей двухколесного транспорта проехали по центральным улицам." },
-            { id: 20, tag: "💡 Экономика", title: "Поддержаны проекты молодых социальных предпринимателей", text: "Государство выделило гранты на развитие инклюзивных бизнесов." }
+        const rssFeeds = [
+            { tag: "🌟 Добрые вести", url: "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ftass.ru%2Frss%2Fv2.xml" }
         ];
 
-        async function initDailyFeed() {
-            const feed = document.getElementById('feed');
+        window.syncAndLoadFeed = async function() {
+            document.getElementById('startScreen').style.display = 'none';
             const dateText = document.getElementById('currentDateText');
+            dateText.style.display = 'block';
             
             const today = new Date();
             const dateString = today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-            dateText.innerText = `📅 Новости на сегодня: ${dateString}`;
+            dateText.innerText = `📅 База архива новостей на: ${dateString}`;
 
-            const startOfYear = new Date(today.getFullYear(), 0, 0);
-            const diff = (today - startOfYear) + ((startOfYear.getTimezoneOffset() - today.getTimezoneOffset()) * 60 * 1000);
-            const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const feed = document.getElementById('feed');
+            feed.innerHTML = '<div style="text-align:center; color:#94a3b8; padding: 20px;">Синхронизируем свежие новости с базой...</div>';
 
-            feed.innerHTML = '';
+            try {
+                // 1. Сначала подтягиваем свежие данные из RSS и сохраняем новые в Firestore
+                for (const feedSource of rssFeeds) {
+                    const response = await fetch(feedSource.url);
+                    const data = await response.json();
+                    if (data.status === 'ok') {
+                        for (const item of data.items) {
+                            let pubDateFormatted = "";
+                            let rawTimestamp = Date.now();
+                            if (item.pubDate) {
+                                const d = new Date(item.pubDate);
+                                if (!isNaN(d)) {
+                                    rawTimestamp = d.getTime();
+                                    pubDateFormatted = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) + ' в ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                                } else {
+                                    pubDateFormatted = item.pubDate;
+                                }
+                            }
 
-            // Получаем локальные отметки пользователя (какие кнопки он нажимал со своего телефона)
-            let userReactions = JSON.parse(localStorage.getItem('user_clicked') || '{}');
-
-            for (let i = 0; i < allNewsDatabase.length; i++) {
-                const newsIndex = (dayOfYear + i) % allNewsDatabase.length;
-                const item = allNewsDatabase[newsIndex];
-                const docId = `news_${item.id}`;
-                
-                const card = document.createElement('div');
-                card.className = 'news-card';
-                card.innerHTML = `
-                    <span class="news-tag">${item.tag}</span>
-                    <div class="news-title">${item.title}</div>
-                    <div class="news-text">${item.text}</div>
-                    <div class="reactions" data-id="${item.id}">
-                        <button class="react-btn ${userReactions[`${docId}_👍`] ? 'active' : ''}" id="btn_${docId}_👍" onclick="window.handleReaction(${item.id}, '👍', event)">👍 <span id="count_${docId}_👍">0</span></button>
-                        <button class="react-btn ${userReactions[`${docId}_👎`] ? 'active' : ''}" id="btn_${docId}_👎" onclick="window.handleReaction(${item.id}, '👎', event)">👎 <span id="count_${docId}_👎">0</span></button>
-                        <button class="react-btn ${userReactions[`${docId}_❤️`] ? 'active' : ''}" id="btn_${docId}_❤️" onclick="window.handleReaction(${item.id}, '❤️', event)">❤️ <span id="count_${docId}_❤️">0</span></button>
-                        <button class="react-btn ${userReactions[`${docId}_💩`] ? 'active' : ''}" id="btn_${docId}_💩" onclick="window.handleReaction(${item.id}, '💩', event)">💩 <span id="count_${docId}_💩">0</span></button>
-                    </div>
-                `;
-                feed.appendChild(card);
-
-                // Подписываемся на изменения в реальном времени для каждой новости из Firebase Firestore
-                const docRef = doc(db, "reactions", docId);
-                onSnapshot(docRef, async (docSnap) => {
-                    if (!docSnap.exists()) {
-                        // Если документа еще нет в облаке, создаем с нулями
-                        await setDoc(docRef, { '👍': 0, '👎': 0, '❤️': 0, '💩': 0 });
-                    } else {
-                        const data = docSnap.data();
-                        ['👍', '👎', '❤️', '💩'].forEach(emoji => {
-                            const countSpan = document.getElementById(`count_${docId}_${emoji}`);
-                            if (countSpan) countSpan.innerText = data[emoji] || 0;
-                        });
+                            // Делаем безопасный ID на основе ссылки, чтобы не плодить дубликаты
+                            const safeId = "news_" + btoa(encodeURIComponent(item.link)).replace(/=/g, '');
+                            const docRef = db.collection("saved_news").doc(safeId);
+                            
+                            const docSnap = await docRef.get();
+                            if (!docSnap.exists) {
+                                // Если такой новости еще нет в базе — сохраняем её
+                                await docRef.set({
+                                    tag: feedSource.tag,
+                                    title: item.title,
+                                    text: item.description.replace(/<[^>]*>?/gm, '').substring(0, 120) + '...',
+                                    details: item.description.replace(/<[^>]*>?/gm, ''),
+                                    pubDate: pubDateFormatted,
+                                    timestamp: rawTimestamp,
+                                    link: item.link
+                                });
+                            }
+                        }
                     }
-                });
-            }
-        }
+                }
 
-        // Глобальная функция клика по реакциям
-        window.handleReaction = async function(newsId, emoji, event) {
-            event.stopPropagation();
-            const docId = `news_${newsId}`;
+                // 2. Загружаем всю накопившуюся историю из базы (сортируем от новых к старым)
+                const snapshot = await db.collection("saved_news").orderBy("timestamp", "desc").get();
+                
+                feed.innerHTML = '';
+                let userReactions = JSON.parse(localStorage.getItem('user_clicked') || '{}');
+
+                if (snapshot.empty) {
+                    feed.innerHTML = '<div style="text-align:center; color:#94a3b8;">В базе пока нет записей.</div>';
+                    return;
+                }
+
+                snapshot.forEach((doc) => {
+                    const item = doc.data();
+                    const docId = doc.id;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'news-card';
+                    card.id = `card_${docId}`;
+                    card.innerHTML = `
+                        <div class="news-header-info">
+                            <span class="news-tag">${item.tag}</span>
+                            <span class="news-pubdate">🕒 ${item.pubDate}</span>
+                        </div>
+                        <div class="news-title">${item.title}</div>
+                        <div class="news-text">${item.text}</div>
+                        <div class="news-details">${item.details}</div>
+                        <button class="expand-btn" onclick="window.toggleDetails('${docId}')">
+                            Подробнее <span>▼</span>
+                        </button>
+                        <div class="reactions">
+                            <button class="react-btn ${userReactions[`${docId}_👍`] ? 'active' : ''}" id="btn_${docId}_👍" onclick="window.handleReaction('${docId}', '👍')">👍 <span id="count_${docId}_👍">0</span></button>
+                            <button class="react-btn ${userReactions[`${docId}_👎`] ? 'active' : ''}" id="btn_${docId}_👎" onclick="window.handleReaction('${docId}', '👎')">👎 <span id="count_${docId}_👎">0</span></button>
+                            <button class="react-btn ${userReactions[`${docId}_❤️`] ? 'active' : ''}" id="btn_${docId}_❤️" onclick="window.handleReaction('${docId}', '❤️')">❤️ <span id="count_${docId}_❤️">0</span></button>
+                            <button class="react-btn ${userReactions[`${docId}_💩`] ? 'active' : ''}" id="btn_${docId}_💩" onclick="window.handleReaction('${docId}', '💩')">💩 <span id="count_${docId}_💩">0</span></button>
+                        </div>
+                    `;
+                    feed.appendChild(card);
+
+                    // Слушаем лайки/дизлайки в реальном времени
+                    db.collection("reactions").doc(docId).onSnapshot((docSnap) => {
+                        if (!docSnap.exists) {
+                            db.collection("reactions").doc(docId).set({ '👍': 0, '👎': 0, '❤️': 0, '💩': 0 });
+                        } else {
+                            const data = docSnap.data();
+                            ['👍', '👎', '❤️', '💩'].forEach(emoji => {
+                                const span = document.getElementById(`count_${docId}_${emoji}`);
+                                if (span) span.innerText = data[emoji] || 0;
+                            });
+                        }
+                    });
+                });
+
+            } catch (err) {
+                console.error(err);
+                feed.innerHTML = '<div style="text-align:center; color:#f87171;">Не удалось загрузить новости. Проверьте интернет-соединение.</div>';
+            }
+        };
+
+        window.toggleDetails = function(docId) {
+            document.getElementById(`card_${docId}`).classList.toggle('open');
+        };
+
+        window.handleReaction = async function(docId, emoji) {
             const btnKey = `${docId}__${emoji}`;
             const btn = document.getElementById(`btn_${docId}_${emoji}`);
             
             let userReactions = JSON.parse(localStorage.getItem('user_clicked') || '{}');
-            const isCurrentlyActive = !!userReactions[btnKey];
+            const isActive = !!userReactions[btnKey];
 
-            // Меняем локальное состояние кнопки и сохраняем в localStorage телефона
-            userReactions[btnKey] = !isCurrentlyActive;
+            userReactions[btnKey] = !isActive;
             localStorage.setItem('user_clicked', JSON.stringify(userReactions));
 
-            if (!isCurrentlyActive) {
+            if (!isActive) {
                 btn.classList.add('active');
-                spawnSparkles(btn, emoji);
             } else {
                 btn.classList.remove('active');
             }
 
-            // Отправляем инкремент (+1) или декремент (-1) в облачную базу данных Firebase
-            const docRef = doc(db, "reactions", docId);
+            const docRef = db.collection("reactions").doc(docId);
             try {
-                await updateDoc(docRef, {
-                    [emoji]: increment(isCurrentlyActive ? -1 : 1)
+                await docRef.update({
+                    [emoji]: firebase.firestore.FieldValue.increment(isActive ? -1 : 1)
                 });
             } catch (err) {
-                // Если документ случайно не успел создаться
-                await setDoc(docRef, { [emoji]: isCurrentlyActive ? 0 : 1 }, { merge: true });
+                await docRef.set({ [emoji]: isActive ? 0 : 1 }, { merge: true });
             }
         };
-
-        function spawnSparkles(button, emoji) {
-            const rect = button.getBoundingClientRect();
-            const startX = rect.left + window.pageXOffset + rect.width / 2;
-            const startY = rect.top + window.pageYOffset + rect.height / 2;
-
-            for (let i = 0; i < 4; i++) {
-                const spark = document.createElement('div');
-                spark.className = 'sparkle';
-                spark.innerText = emoji;
-                spark.style.left = `${startX}px`;
-                spark.style.top = `${startY}px`;
-
-                const angle = Math.random() * Math.PI * 2;
-                const distance = 30 + Math.random() * 40;
-                const tx = Math.cos(angle) * distance;
-                const ty = Math.sin(angle) * distance - 20;
-
-                spark.style.setProperty('--tx', `${tx}px`);
-                spark.style.setProperty('--ty', `${ty}px`);
-
-                document.body.appendChild(spark);
-                setTimeout(() => spark.remove(), 600);
-            }
-        }
-
-        window.addEventListener('pointerdown', (event) => {
-            if (event.target.tagName === 'BUTTON' || event.target.closest('button')) return;
-
-            const symbols = ['✨', '💖', '⭐', '🎈', '🔥'];
-            const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-
-            const elem = document.createElement('div');
-            elem.className = 'click-effect';
-            elem.innerText = randomSymbol;
-            elem.style.left = `${event.pageX - 10}px`;
-            elem.style.top = `${event.pageY - 10}px`;
-
-            document.body.appendChild(elem);
-            setTimeout(() => elem.remove(), 600);
-        });
-
-        window.onload = initDailyFeed;
     </script>
 </body>
 </html>
