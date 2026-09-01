@@ -3,553 +3,558 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoodNews Live</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
+    <title>GoodNews Live - Full Timed & Date</title>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --header-bg: linear-gradient(135deg, #1e293b, #0f172a);
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --card-bg: #1e293b;
-            --border-color: #334155;
-            --accent-color: #38bdf8;
-            --input-bg: #0f172a;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popReaction {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.25); filter: brightness(1.3); }
+            100% { transform: scale(1); }
+        }
+        @keyframes floatButterfly {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% {
+                transform: translate(var(--move-x), -110vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
         }
 
-        [data-theme="light"] {
-            --bg-color: #f1f5f9;
-            --header-bg: linear-gradient(135deg, #ffffff, #e2e8f0);
-            --text-color: #0f172a;
-            --text-muted: #64748b;
-            --card-bg: #ffffff;
-            --border-color: #cbd5e1;
-            --accent-color: #0284c7;
-            --input-bg: #f8fafc;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background: linear-gradient(135deg, #090d16 0%, #0f172a 100%);
+            color: #f8fafc;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 15px;
             min-height: 100vh;
-            padding-bottom: 40px;
-            user-select: none;
-            -webkit-user-select: none;
+            position: relative;
             overflow-x: hidden;
-            transition: background 0.3s, color 0.3s;
         }
-        header {
-            background: var(--header-bg);
-            padding: 20px;
+
+        .butterfly-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .bg-butterfly {
+            position: absolute;
+            bottom: -50px;
+            font-size: 1.5rem;
+            animation: floatButterfly linear infinite;
+            user-select: none;
+        }
+
+        h1, .server-status, .search-box, .categories, #feed, .modal {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
             text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 500px;
-            margin: 0 auto 10px auto;
-        }
-        .theme-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-        .logo-wrapper {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .logo {
-            font-size: 1.4rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #38bdf8, #c084fc, #f472b6);
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-size: 1.6rem;
+            margin-bottom: 5px;
         }
-        .butterfly {
-            font-size: 1.1rem;
-            animation: flutter 2s infinite ease-in-out;
-            display: inline-block;
-        }
-        @keyframes flutter {
-            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-            50% { transform: translateY(-4px) rotate(8deg) scale(1.1); }
-        }
-        .subtitle {
-            color: var(--text-muted);
+        .server-status {
+            text-align: center;
             font-size: 0.8rem;
-            margin-bottom: 12px;
-        }
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 15px;
-        }
-        .controls-box {
+            color: #38bdf8;
+            margin-bottom: 20px;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 3px;
+        }
+        .date-badge {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #f8fafc;
+        }
+        .search-box {
             margin-bottom: 15px;
         }
         .search-input {
             width: 100%;
-            background: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 10px 14px;
-            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 14px;
             font-size: 0.9rem;
             outline: none;
+            box-sizing: border-box;
         }
-        .search-input:focus {
-            border-color: var(--accent-color);
-        }
-        .categories-scroll {
+        .categories {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             overflow-x: auto;
+            margin-bottom: 20px;
             padding-bottom: 5px;
             scrollbar-width: none;
         }
-        .categories-scroll::-webkit-scrollbar {
-            display: none;
-        }
-        .cat-chip {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 6px 12px;
+        .categories::-webkit-scrollbar { display: none; }
+        .chip {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(51, 65, 85, 0.6);
+            color: #94a3b8;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             cursor: pointer;
             white-space: nowrap;
-            transition: 0.2s;
+            transition: all 0.2s;
         }
-        .cat-chip.active {
-            background: var(--accent-color);
-            color: white;
-            border-color: var(--accent-color);
-            font-weight: bold;
+        .chip.active {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            color: #0f172a;
+            font-weight: 700;
         }
-        .info-date {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            color: #34d399;
-            padding: 10px;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .refresh-mini-btn {
-            background: rgba(56, 189, 248, 0.15);
-            border: 1px solid var(--accent-color);
-            color: var(--accent-color);
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .news-card {
-            background: var(--card-bg);
+        .card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
             border-radius: 16px;
             padding: 18px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            position: relative;
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.2s;
         }
-        .news-header-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+        .card:hover {
+            border-color: rgba(56, 189, 248, 0.5);
+            transform: translateY(-2px);
         }
-        .news-tag {
-            font-size: 0.75rem;
-            color: var(--accent-color);
-            background: rgba(56, 189, 248, 0.12);
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-        .news-tag.emergency {
-            color: #f87171;
-            background: rgba(248, 113, 113, 0.12);
-        }
-        .news-pubdate {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-        .news-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 12px;
-            color: var(--text-color);
-            line-height: 1.4;
-        }
-        .news-image {
+        .card-img {
             width: 100%;
-            max-height: 220px;
+            height: 160px;
             object-fit: cover;
             border-radius: 10px;
             margin-bottom: 12px;
-            background-color: var(--bg-color);
+            background: #1e293b;
         }
-        .news-text {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 10px;
-        }
-        .news-details {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
-            opacity: 0;
-            color: var(--text-color);
-            font-size: 0.88rem;
-            line-height: 1.6;
-            border-left: 2px solid var(--accent-color);
-            padding-left: 12px;
-        }
-        .news-card.open .news-details {
-            max-height: 600px;
-            opacity: 1;
-            margin-top: 12px;
-            margin-bottom: 12px;
-        }
-        .expand-btn {
-            background: none;
-            border: none;
-            color: var(--accent-color);
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 4px 0;
-            margin-bottom: 12px;
-            display: inline-flex;
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 4px;
+            margin-bottom: 10px;
+            gap: 10px;
         }
-        .expand-btn span {
-            transition: transform 0.3s;
+        .tag {
+            font-size: 0.75rem;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            padding: 3px 10px;
+            border-radius: 8px;
+            white-space: nowrap;
         }
-        .news-card.open .expand-btn span {
-            transform: rotate(180deg);
+        .post-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+        .title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #f8fafc;
+        }
+        .text {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .reactions {
             display: flex;
             gap: 6px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 12px;
+            flex-wrap: wrap;
         }
-        .react-btn {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 8px 4px;
-            border-radius: 14px;
-            cursor: pointer;
-            flex: 1;
+        button.react-btn {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(51, 65, 85, 0.8);
+            color: #f8fafc;
+            padding: 6px 10px;
+            border-radius: 10px;
             font-size: 0.8rem;
-            font-weight: bold;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        button.react-btn.animate {
+            animation: popReaction 0.35s ease;
+        }
+        button.react-btn.active {
+            background: rgba(56, 189, 248, 0.18);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+        .read-more {
+            font-size: 0.8rem;
+            color: #38bdf8;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .loading {
+            text-align: center;
+            color: #94a3b8;
+            padding: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(9, 13, 22, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        .modal-content {
+            background: #1e293b;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 24px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-img {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #f8fafc;
+        }
+        .modal-text {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .modal-actions {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 4px;
-            position: relative;
+            border-top: 1px solid #334155;
+            padding-top: 15px;
         }
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.25); }
-            100% { transform: scale(1); }
+        .original-link {
+            background: #38bdf8;
+            color: #0f172a;
+            padding: 8px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
         }
-        .animate-pop {
-            animation: pop 0.3s ease;
-        }
-        .react-btn.active {
-            background: rgba(56, 189, 248, 0.2);
-            border-color: var(--accent-color);
-            color: var(--accent-color);
-        }
-        .explosion-particle {
-            position: absolute;
-            font-size: 1.2rem;
-            pointer-events: none;
-            z-index: 50;
-            animation: explodeOut 0.7s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-        }
-        @keyframes explodeOut {
-            0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 1; }
-            100% { transform: translate(var(--dx), var(--dy)) scale(1.3) rotate(var(--rot)); opacity: 0; }
+        .close-btn {
+            background: transparent;
+            border: 1px solid #64748b;
+            color: #94a3b8;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="header-top">
-            <div class="logo-wrapper">
-                <span class="butterfly">🦋</span>
-                <span class="logo">GoodNews Live</span>
-            </div>
-            <button class="theme-btn" id="themeBtn">🌓 Темы</button>
-        </div>
-        <div class="subtitle">Мировые новости, события и происшествия</div>
-    </header>
+    <div class="butterfly-container" id="butterflyContainer"></div>
 
-    <div class="container">
-        <div class="controls-box">
-            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по архиву новостей...">
-            <div class="categories-scroll" id="categoryChips">
-                <div class="cat-chip active" data-cat="all">Все</div>
-                <div class="cat-chip" data-cat="🌟 ТАСС: Главное">Главное</div>
-                <div class="cat-chip" data-cat="🚨 ЧП и Происшествия">ЧП</div>
-                <div class="cat-chip" data-cat="🌍 ТАСС: Мир">Мир</div>
-                <div class="cat-chip" data-cat="📈 ТАСС: Экономика">Экономика</div>
-                <div class="cat-chip" data-cat="🏛️ ТАСС: Общество">Общество</div>
-                <div class="cat-chip" data-cat="🚀 ТАСС: Наука">Наука</div>
-            </div>
-        </div>
-
-        <div class="info-date" id="currentDateText">
-            <span id="dateStringDisplay">📅 Загрузка...</span>
-            <button class="refresh-mini-btn" id="refreshBtn">🔄 Обновить</button>
-        </div>
-        <div id="feed"></div>
+    <h1>GoodNews Live 🦋</h1>
+    <div class="server-status" id="serverStatusBox">
+        <div class="date-badge" id="currentDate">📅 Загрузка даты...</div>
+        <div id="statusText">🌐 Подключение к официальным источникам...</div>
     </div>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по статьям..." oninput="filterNews()">
+    </div>
+
+    <div class="categories">
+        <div class="chip active" onclick="setCategory('all', this)">Все</div>
+        <div class="chip" onclick="setCategory('tech', this)">Технологии</div>
+        <div class="chip" onclick="setCategory('world', this)">Мир</div>
+    </div>
+
+    <div id="feed">
+        <div class="loading">Загрузка свежих материалов...</div>
+    </div>
+
+    <div id="newsModal" class="modal" onclick="closeModalOnBg(event)">
+        <div class="modal-content">
+            <img id="modalImg" class="modal-img" src="" alt="" style="display: none;">
+            <div id="modalTag" class="tag"></div>
+            <div id="modalTitle" class="modal-title"></div>
+            <div id="modalText" class="modal-text"></div>
+            <div class="modal-actions">
+                <a id="modalLink" class="original-link" href="" target="_blank">Читать оригинал 🔗</a>
+                <button class="close-btn" onclick="closeModal()">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const firebaseConfig = {
-                apiKey: "AIzaSyBljsHsWi0m3VKQ2FDqR5YPapLv-c6yLS4",
-                authDomain: "mir-dobro.firebaseapp.com",
-                projectId: "mir-dobro",
-                storageBucket: "mir-dobro.firebasestorage.app",
-                messagingSenderId: "659469108341",
-                appId: "1:659469108341:web:f23dd02f8143c182fc243c",
-                measurementId: "G-XEQYQRK03G"
-            };
+        const availableReactions = ["👍", "❤️", "👎", "💩"];
 
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
+        function displayCurrentDate() {
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const todayStr = new Date().toLocaleDateString('ru-RU', options);
+            document.getElementById('currentDate').innerText = `📅 Сегодня: ${todayStr}`;
+        }
+
+        function formatPubDate(pubDateStr) {
+            if (!pubDateStr) return '';
+            try {
+                const date = new Date(pubDateStr);
+                if (isNaN(date.getTime())) return '';
+                
+                const dateFormatted = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+                const timeFormatted = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                return `📅 ${dateFormatted} в ${timeFormatted}`;
+            } catch (e) {
+                return '';
             }
-            const db = firebase.firestore();
+        }
 
-            let allNewsItems = [];
-            let currentCategory = 'all';
+        function initButterflies() {
+            const container = document.getElementById('butterflyContainer');
+            const butterflyCount = 7;
 
-            const savedTheme = localStorage.getItem('app_theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+            for (let i = 0; i < butterflyCount; i++) {
+                const b = document.createElement('div');
+                b.className = 'bg-butterfly';
+                b.innerText = '🦋';
+                
+                const leftPos = Math.random() * 100;
+                const duration = 8 + Math.random() * 7;
+                const delay = Math.random() * 8;
+                const moveX = (-50 + Math.random() * 100) + 'px';
 
-            document.getElementById('themeBtn').addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('app_theme', newTheme);
-            });
+                b.style.left = leftPos + '%';
+                b.style.animationDuration = duration + 's';
+                b.style.animationDelay = delay + 's';
+                b.style.setProperty('--move-x', moveX);
 
-            document.querySelectorAll('.cat-chip').forEach(chip => {
-                chip.addEventListener('click', function() {
-                    currentCategory = this.getAttribute('data-cat');
-                    document.querySelectorAll('.cat-chip').forEach(el => el.classList.remove('active'));
-                    this.classList.add('active');
-                    renderNews();
-                });
-            });
+                container.appendChild(b);
+            }
+        }
 
-            document.getElementById('searchInput').addEventListener('input', () => {
-                renderNews();
-            });
+        let allNews = [];
+        let currentCategory = 'all';
 
-            document.getElementById('refreshBtn').addEventListener('click', () => {
-                loadNewsFromFirebase();
-            });
+        const rssFeeds = [
+            { category: 'tech', tag: 'Технологии (Хабр)', url: 'https://habr.com/ru/rss/all/' },
+            { category: 'world', tag: 'Мир (РИА)', url: 'https://ria.ru/export/rss2/index.xml' }
+        ];
 
-            function renderNews() {
-                const feed = document.getElementById('feed');
-                const query = document.getElementById('searchInput').value.toLowerCase();
-                feed.innerHTML = '';
+        async function fetchOfficialNews() {
+            const feedContainer = document.getElementById('feed');
+            let loadedItems = [];
 
-                let userReactions = JSON.parse(localStorage.getItem('user_clicked') || '{}');
+            try {
+                for (const source of rssFeeds) {
+                    // Добавлено &_t= для обхода кэша сервера и получения самых свежих новостей
+                    const apiURL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(source.url)}&_t=${Date.now()}`;
+                    const response = await fetch(apiURL);
+                    const data = await response.json();
 
-                const filtered = allNewsItems.filter(item => {
-                    const matchesCat = (currentCategory === 'all' || item.tag === currentCategory);
-                    const matchesQuery = (item.title && item.title.toLowerCase().includes(query)) || (item.text && item.text.toLowerCase().includes(query));
-                    return matchesCat && matchesQuery;
-                });
-
-                if (filtered.length === 0) {
-                    feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 20px;">Ничего не найдено.</div>';
-                    return;
-                }
-
-                filtered.forEach((item) => {
-                    const docId = item.id;
-                    const imageHtml = item.imageUrl ? `<img src="${item.imageUrl}" class="news-image" alt="Фото" loading="lazy">` : '';
-                    const tagClass = item.isEmergency ? "news-tag emergency" : "news-tag";
-
-                    const card = document.createElement('div');
-                    card.className = 'news-card';
-                    card.id = `card_${docId}`;
-                    card.innerHTML = `
-                        <div class="news-header-info">
-                            <span class="${tagClass}">${item.tag || 'Новости'}</span>
-                            <span class="news-pubdate">🕒 ${item.pubDate || ''}</span>
-                        </div>
-                        <div class="news-title">${item.title}</div>
-                        ${imageHtml}
-                        <div class="news-text">${item.text}</div>
-                        <div class="news-details">${item.details || item.text}</div>
-                        <button class="expand-btn">
-                            Подробнее <span>▼</span>
-                        </button>
-                        <div class="reactions">
-                            <button class="react-btn ${userReactions[`${docId}__👍`] ? 'active' : ''}" data-id="${docId}" data-emoji="👍">👍 <span id="count_${docId}_👍">0</span></button>
-                            <button class="react-btn ${userReactions[`${docId}__👎`] ? 'active' : ''}" data-id="${docId}" data-emoji="👎">👎 <span id="count_${docId}_👎">0</span></button>
-                            <button class="react-btn ${userReactions[`${docId}__❤️`] ? 'active' : ''}" data-id="${docId}" data-emoji="❤️">❤️ <span id="count_${docId}_❤️">0</span></button>
-                            <button class="react-btn ${userReactions[`${docId}__💩`] ? 'active' : ''}" data-id="${docId}" data-emoji="💩">💩 <span id="count_${docId}_💩">0</span></button>
-                        </div>
-                    `;
-                    feed.appendChild(card);
-
-                    card.querySelector('.expand-btn').addEventListener('click', () => {
-                        card.classList.toggle('open');
-                    });
-
-                    card.querySelectorAll('.react-btn').forEach(btn => {
-                        btn.addEventListener('click', async function(event) {
-                            const dId = this.getAttribute('data-id');
-                            const emoji = this.getAttribute('data-emoji');
-                            
-                            this.classList.add('animate-pop');
-                            setTimeout(() => this.classList.remove('animate-pop'), 300);
-
-                            const rect = this.getBoundingClientRect();
-                            const clickX = event.clientX - rect.left;
-                            const clickY = event.clientY - rect.top;
-
-                            for (let i = 0; i < 6; i++) {
-                                const particle = document.createElement('div');
-                                particle.className = 'explosion-particle';
-                                particle.innerText = emoji;
-
-                                const angle = Math.random() * Math.PI * 2;
-                                const distance = 40 + Math.random() * 60;
-                                const dx = Math.cos(angle) * distance;
-                                const dy = Math.sin(angle) * distance - 20;
-                                const rot = (Math.random() - 0.5) * 60;
-
-                                particle.style.left = `${clickX}px`;
-                                particle.style.top = `${clickY}px`;
-                                particle.style.setProperty('--dx', `${dx}px`);
-                                particle.style.setProperty('--dy', `${dy}px`);
-                                particle.style.setProperty('--rot', `${rot}deg`);
-
-                                this.appendChild(particle);
-                                setTimeout(() => particle.remove(), 700);
+                    if (data.status === 'ok' && data.items) {
+                        data.items.forEach((item, index) => {
+                            let imageUrl = item.thumbnail || item.enclosure?.link || '';
+                            if (!imageUrl && item.description) {
+                                const imgMatch = item.description.match(/<img[^>]+src="([^">]+)"/);
+                                if (imgMatch) imageUrl = imgMatch[1];
                             }
 
-                            let userReactions = JSON.parse(localStorage.getItem('user_clicked') || '{}');
-                            const key = `${dId}__${emoji}`;
+                            const cleanDescription = item.description.replace(/<[^>]*>?/gm, '');
 
-                            if (userReactions[key]) return;
-
-                            userReactions[key] = true;
-                            localStorage.setItem('user_clicked', JSON.stringify(userReactions));
-                            this.classList.add('active');
-
-                            const ref = db.collection("reactions").doc(dId);
-                            try {
-                                const doc = await ref.get();
-                                if (!doc.exists) {
-                                    await ref.set({ '👍': 0, '👎': 0, '❤️': 0, '💩': 0, [emoji]: 1 });
-                                } else {
-                                    const currentCount = (doc.data()[emoji] || 0) + 1;
-                                    await ref.update({ [emoji]: currentCount });
-                                }
-                            } catch (e) {
-                                console.error("Ошибка при обновлении реакции: ", e);
-                            }
-                        });
-                    });
-
-                    db.collection("reactions").doc(docId).onSnapshot((docSnap) => {
-                        if (!docSnap.exists) {
-                            db.collection("reactions").doc(docId).set({ '👍': 0, '👎': 0, '❤️': 0, '💩': 0 });
-                        } else {
-                            const data = docSnap.data();
-                            ['👍', '👎', '❤️', '💩'].forEach(emoji => {
-                                const span = document.getElementById(`count_${docId}_${emoji}`);
-                                if (span) span.innerText = data[emoji] || 0;
+                            loadedItems.push({
+                                id: `${source.category}-${index}-${Date.now()}`,
+                                category: source.category,
+                                tag: source.tag,
+                                title: item.title,
+                                text: cleanDescription,
+                                image: imageUrl,
+                                link: item.link,
+                                pubDate: item.pubDate
                             });
-                        }
-                    });
-                });
-            }
-
-            async function loadNewsFromFirebase() {
-                const feed = document.getElementById('feed');
-                feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 20px;">Загрузка архива...</div>';
-
-                try {
-                    const snapshot = await db.collection("saved_news").orderBy("timestamp", "desc").get();
-
-                    if (snapshot.empty) {
-                        await db.collection("saved_news").doc("news_welcome_sample").set({
-                            tag: "🌟 ТАСС: Главное",
-                            isEmergency: false,
-                            title: "Добро пожаловать в GoodNews Live!",
-                            text: "База данных успешно подключена. Реакции и функции работают!",
-                            details: "Тестовая запись для проверки системы.",
-                            pubDate: "Только что",
-                            timestamp: Date.now(),
-                            link: "#",
-                            imageUrl: ""
                         });
-                        return loadNewsFromFirebase();
                     }
-
-                    allNewsItems = [];
-                    snapshot.forEach((doc) => {
-                        allNewsItems.push({ id: doc.id, ...doc.data() });
-                    });
-
-                    renderNews();
-                } catch (err) {
-                    console.error(err);
-                    feed.innerHTML = `<div style="text-align:center; color:#f87171; padding: 20px;">Ошибка связи с Firebase: ${err.message}</div>`;
                 }
+
+                if (loadedItems.length > 0) {
+                    allNews = loadedItems;
+                    document.getElementById('statusText').innerText = `✅ Загружено ${allNews.length} статей. Лента активна!`;
+                    renderFeed(allNews);
+                } else {
+                    feedContainer.innerHTML = `<div class="loading">Не удалось загрузить ленту.</div>`;
+                }
+            } catch (error) {
+                feedContainer.innerHTML = `<div class="loading">Ошибка подключения к сети.</div>`;
+            }
+        }
+
+        function getDefaultReactions() {
+            let obj = {};
+            availableReactions.forEach(emoji => {
+                obj[emoji] = { count: 0, active: false };
+            });
+            return obj;
+        }
+
+        function renderFeed(newsList) {
+            const feed = document.getElementById('feed');
+            let savedData = JSON.parse(localStorage.getItem('news_data_timed_v4') || '{}');
+            let html = '';
+
+            newsList.forEach(item => {
+                let reactions = savedData[item.id] || getDefaultReactions();
+                
+                const safeTitle = item.title.replace(/"/g, '&quot;');
+                const safeText = item.text.replace(/"/g, '&quot;').replace(/\n/g, ' ');
+                const formattedDateTime = formatPubDate(item.pubDate);
+
+                let reactionsHtml = '';
+                availableReactions.forEach(emoji => {
+                    let rData = reactions[emoji] || { count: 0, active: false };
+                    reactionsHtml += `
+                        <button class="react-btn ${rData.active ? 'active' : ''}" onclick="toggleReaction('${item.id}', '${emoji}', this)">
+                            ${emoji} <span class="count">${rData.count}</span>
+                        </button>
+                    `;
+                });
+
+                html += `
+                    <div class="card" onclick="openModal('${safeTitle}', '${safeText}', '${item.image}', '${item.link}', '${item.tag}')">
+                        ${item.image ? `<img class="card-img" src="${item.image}" alt="" loading="lazy">` : ''}
+                        <div class="card-header-row">
+                            <span class="tag">${item.tag}</span>
+                            ${formattedDateTime ? `<span class="post-time">${formattedDateTime}</span>` : ''}
+                        </div>
+                        <div class="title">${item.title}</div>
+                        <div class="text">${item.text}</div>
+                        <div class="footer-row">
+                            <div class="reactions" onclick="event.stopPropagation()">
+                                ${reactionsHtml}
+                            </div>
+                            <span class="read-more">Читать →</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            feed.innerHTML = html;
+        }
+
+        function openModal(title, text, image, link, tag) {
+            const modal = document.getElementById('newsModal');
+            const modalImg = document.getElementById('modalImg');
+            
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalText').innerText = text;
+            document.getElementById('modalTag').innerText = tag;
+            document.getElementById('modalLink').href = link;
+
+            if (image && image !== 'undefined' && image !== '') {
+                modalImg.src = image;
+                modalImg.style.display = 'block';
+            } else {
+                modalImg.style.display = 'none';
             }
 
-            document.getElementById('dateStringDisplay').innerText = "📅 " + new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-            loadNewsFromFirebase();
-        });
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('newsModal').style.display = 'none';
+        }
+
+        function closeModalOnBg(event) {
+            if (event.target.id === 'newsModal') {
+                closeModal();
+            }
+        }
+
+        function toggleReaction(newsId, emoji, btn) {
+            btn.classList.add('animate');
+            setTimeout(() => btn.classList.remove('animate'), 350);
+
+            let savedData = JSON.parse(localStorage.getItem('news_data_timed_v4') || '{}');
+            if (!savedData[newsId]) {
+                savedData[newsId] = getDefaultReactions();
+            }
+
+            let target = savedData[newsId][emoji];
+            if (btn.classList.contains('active')) {
+                btn.classList.remove('active');
+                target.count = Math.max(0, target.count - 1);
+                target.active = false;
+            } else {
+                btn.classList.add('active');
+                target.count += 1;
+                target.active = true;
+            }
+
+            btn.querySelector('.count').innerText = target.count;
+            localStorage.setItem('news_data_timed_v4', JSON.stringify(savedData));
+        }
+
+        function setCategory(category, chipElement) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            chipElement.classList.add('active');
+            currentCategory = category;
+            filterNews();
+        }
+
+        function filterNews() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allNews.filter(item => {
+                const matchesCategory = (currentCategory === 'all' || item.category === currentCategory);
+                const matchesQuery = item.title.toLowerCase().includes(query) || item.text.toLowerCase().includes(query);
+                return matchesCategory && matchesQuery;
+            });
+            renderFeed(filtered);
+        }
+
+        displayCurrentDate();
+        initButterflies();
+        fetchOfficialNews();
     </script>
 </body>
 </html>
