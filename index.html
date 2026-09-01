@@ -9,6 +9,28 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --header-bg: linear-gradient(135deg, #1e293b, #0f172a);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --accent-color: #38bdf8;
+            --input-bg: #0f172a;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f1f5f9;
+            --header-bg: linear-gradient(135deg, #ffffff, #e2e8f0);
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --border-color: #cbd5e1;
+            --accent-color: #0284c7;
+            --input-bg: #f8fafc;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -17,97 +39,150 @@
             -webkit-tap-highlight-color: transparent;
         }
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             min-height: 100vh;
             padding-bottom: 40px;
             user-select: none;
             -webkit-user-select: none;
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
         }
         header {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            padding: 24px 20px;
+            background: var(--header-bg);
+            padding: 20px;
             text-align: center;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto 10px auto;
+        }
+        .theme-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
         }
         .logo-wrapper {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 6px;
+            gap: 8px;
         }
         .logo {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 800;
             background: linear-gradient(135deg, #38bdf8, #c084fc, #f472b6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .butterfly {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             animation: flutter 2s infinite ease-in-out;
             display: inline-block;
         }
-        .butterfly.right {
-            animation-delay: 1s;
-            transform: scaleX(-1);
-        }
         @keyframes flutter {
             0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-            50% { transform: translateY(-5px) rotate(10deg) scale(1.15); }
+            50% { transform: translateY(-4px) rotate(8deg) scale(1.1); }
         }
         .subtitle {
-            color: #94a3b8;
-            font-size: 0.85rem;
-            margin-bottom: 14px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 12px;
         }
         .container {
             max-width: 500px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
-        .start-box {
-            background: #1e293b;
-            border: 2px dashed #38bdf8;
-            padding: 30px;
-            border-radius: 16px;
-            text-align: center;
-            margin-top: 20px;
+        .controls-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
         }
-        .start-btn {
-            background: linear-gradient(135deg, #38bdf8, #2563eb);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: bold;
+        .search-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: var(--accent-color);
+        }
+        .categories-scroll {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none;
+        }
+        .categories-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .cat-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.78rem;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
-            margin-top: 15px;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+        .cat-chip.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+            font-weight: bold;
         }
         .info-date {
-            background: #1e293b;
-            border: 1px solid #334155;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             color: #34d399;
             padding: 10px;
             border-radius: 12px;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: bold;
             margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .refresh-mini-btn {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: bold;
         }
         .news-card {
-            background: #1e293b;
+            background: var(--card-bg);
             border-radius: 16px;
             padding: 18px;
             margin-bottom: 16px;
-            border: 1px solid #334155;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         .news-header-info {
             display: flex;
@@ -117,25 +192,37 @@
         }
         .news-tag {
             font-size: 0.75rem;
-            color: #38bdf8;
+            color: var(--accent-color);
             background: rgba(56, 189, 248, 0.12);
             padding: 4px 10px;
             border-radius: 10px;
             font-weight: 600;
         }
+        .news-tag.emergency {
+            color: #f87171;
+            background: rgba(248, 113, 113, 0.12);
+        }
         .news-pubdate {
             font-size: 0.75rem;
-            color: #64748b;
+            color: var(--text-muted);
         }
         .news-title {
             font-size: 1.1rem;
             font-weight: bold;
-            margin-bottom: 8px;
-            color: #f1f5f9;
+            margin-bottom: 12px;
+            color: var(--text-color);
             line-height: 1.4;
         }
+        .news-image {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            background-color: var(--bg-color);
+        }
         .news-text {
-            color: #94a3b8;
+            color: var(--text-muted);
             font-size: 0.9rem;
             line-height: 1.5;
             margin-bottom: 10px;
@@ -145,26 +232,26 @@
             overflow: hidden;
             transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
             opacity: 0;
-            color: #cbd5e1;
+            color: var(--text-color);
             font-size: 0.88rem;
             line-height: 1.6;
-            border-left: 2px solid #38bdf8;
+            border-left: 2px solid var(--accent-color);
             padding-left: 12px;
         }
         .news-card.open .news-details {
-            max-height: 500px;
+            max-height: 600px;
             opacity: 1;
             margin-top: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         .expand-btn {
             background: none;
             border: none;
-            color: #38bdf8;
+            color: var(--accent-color);
             font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
-            padding: 2px 0;
+            padding: 4px 0;
             margin-bottom: 12px;
             display: inline-flex;
             align-items: center;
@@ -179,13 +266,13 @@
         .reactions {
             display: flex;
             gap: 6px;
-            border-top: 1px solid #334155;
+            border-top: 1px solid var(--border-color);
             padding-top: 12px;
         }
         .react-btn {
-            background: #0f172a;
-            border: 1px solid #334155;
-            color: white;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
             padding: 8px 4px;
             border-radius: 14px;
             cursor: pointer;
@@ -196,147 +283,222 @@
             justify-content: center;
             align-items: center;
             gap: 4px;
+            position: relative;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+            100% { transform: scale(1); }
+        }
+        .animate-pop {
+            animation: pop 0.3s ease;
         }
         .react-btn.active {
             background: rgba(56, 189, 248, 0.2);
-            border-color: #38bdf8;
-            color: #38bdf8;
-            transform: scale(1.05);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+        .explosion-particle {
+            position: absolute;
+            font-size: 1.2rem;
+            pointer-events: none;
+            z-index: 50;
+            animation: explodeOut 0.7s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+        @keyframes explodeOut {
+            0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(1.3) rotate(var(--rot)); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-wrapper">
-            <span class="butterfly">🦋</span>
-            <span class="logo">GoodNews Live</span>
-            <span class="butterfly right">🦋</span>
+        <div class="header-top">
+            <div class="logo-wrapper">
+                <span class="butterfly">🦋</span>
+                <span class="logo">GoodNews Live</span>
+            </div>
+            <button class="theme-btn" id="themeBtn">🌓 Темы</button>
         </div>
-        <div class="subtitle">Ежедневный поток позитива</div>
+        <div class="subtitle">Мировые новости, события и происшествия</div>
     </header>
 
     <div class="container">
-        <div id="startScreen" class="start-box">
-            <p style="color: #cbd5e1; margin-bottom: 10px; font-size: 0.95rem;">Нажмите кнопку, чтобы загрузить и обновить ленту новостей:</p>
-            <button class="start-btn" onclick="syncAndLoadFeed()">🚀 Обновить и загрузить ленту</button>
+        <div class="controls-box">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по архиву новостей...">
+            <div class="categories-scroll" id="categoryChips">
+                <div class="cat-chip active" data-cat="all">Все</div>
+                <div class="cat-chip" data-cat="🌟 ТАСС: Главное">Главное</div>
+                <div class="cat-chip" data-cat="🚨 ЧП и Происшествия">ЧП</div>
+                <div class="cat-chip" data-cat="🌍 ТАСС: Мир">Мир</div>
+                <div class="cat-chip" data-cat="📈 ТАСС: Экономика">Экономика</div>
+                <div class="cat-chip" data-cat="🏛️ ТАСС: Общество">Общество</div>
+                <div class="cat-chip" data-cat="🚀 ТАСС: Наука">Наука</div>
+            </div>
         </div>
 
-        <div class="info-date" id="currentDateText" style="display:none;"></div>
+        <div class="info-date" id="currentDateText">
+            <span id="dateStringDisplay">📅 Загрузка...</span>
+            <button class="refresh-mini-btn" id="refreshBtn">🔄 Обновить</button>
+        </div>
         <div id="feed"></div>
     </div>
-
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBljsHsWi0m3VKQ2FDqR5YPapLv-c6yLS4",
-            authDomain: "mir-dobro.firebaseapp.com",
-            projectId: "mir-dobro",
-            storageBucket: "mir-dobro.firebasestorage.app",
-            messagingSenderId: "659469108341",
-            appId: "1:659469108341:web:f23dd02f8143c182fc243c",
-            measurementId: "G-XEQYQRK03G"
-        };
+        document.addEventListener("DOMContentLoaded", function() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyBljsHsWi0m3VKQ2FDqR5YPapLv-c6yLS4",
+                authDomain: "mir-dobro.firebaseapp.com",
+                projectId: "mir-dobro",
+                storageBucket: "mir-dobro.firebasestorage.app",
+                messagingSenderId: "659469108341",
+                appId: "1:659469108341:web:f23dd02f8143c182fc243c",
+                measurementId: "G-XEQYQRK03G"
+            };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const db = firebase.firestore();
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            const db = firebase.firestore();
 
-        const rssFeeds = [
-            { tag: "🌟 Добрые вести", url: "https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ftass.ru%2Frss%2Fv2.xml" }
-        ];
+            let allNewsItems = [];
+            let currentCategory = 'all';
 
-        window.syncAndLoadFeed = async function() {
-            document.getElementById('startScreen').style.display = 'none';
-            const dateText = document.getElementById('currentDateText');
-            dateText.style.display = 'block';
-            
-            const today = new Date();
-            const dateString = today.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-            dateText.innerText = `📅 База архива новостей на: ${dateString}`;
+            const savedTheme = localStorage.getItem('app_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
 
-            const feed = document.getElementById('feed');
-            feed.innerHTML = '<div style="text-align:center; color:#94a3b8; padding: 20px;">Синхронизируем свежие новости с базой...</div>';
+            document.getElementById('themeBtn').addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('app_theme', newTheme);
+            });
 
-            try {
-                // 1. Сначала подтягиваем свежие данные из RSS и сохраняем новые в Firestore
-                for (const feedSource of rssFeeds) {
-                    const response = await fetch(feedSource.url);
-                    const data = await response.json();
-                    if (data.status === 'ok') {
-                        for (const item of data.items) {
-                            let pubDateFormatted = "";
-                            let rawTimestamp = Date.now();
-                            if (item.pubDate) {
-                                const d = new Date(item.pubDate);
-                                if (!isNaN(d)) {
-                                    rawTimestamp = d.getTime();
-                                    pubDateFormatted = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) + ' в ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-                                } else {
-                                    pubDateFormatted = item.pubDate;
-                                }
-                            }
+            document.querySelectorAll('.cat-chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    currentCategory = this.getAttribute('data-cat');
+                    document.querySelectorAll('.cat-chip').forEach(el => el.classList.remove('active'));
+                    this.classList.add('active');
+                    renderNews();
+                });
+            });
 
-                            // Делаем безопасный ID на основе ссылки, чтобы не плодить дубликаты
-                            const safeId = "news_" + btoa(encodeURIComponent(item.link)).replace(/=/g, '');
-                            const docRef = db.collection("saved_news").doc(safeId);
-                            
-                            const docSnap = await docRef.get();
-                            if (!docSnap.exists) {
-                                // Если такой новости еще нет в базе — сохраняем её
-                                await docRef.set({
-                                    tag: feedSource.tag,
-                                    title: item.title,
-                                    text: item.description.replace(/<[^>]*>?/gm, '').substring(0, 120) + '...',
-                                    details: item.description.replace(/<[^>]*>?/gm, ''),
-                                    pubDate: pubDateFormatted,
-                                    timestamp: rawTimestamp,
-                                    link: item.link
-                                });
-                            }
-                        }
-                    }
-                }
+            document.getElementById('searchInput').addEventListener('input', () => {
+                renderNews();
+            });
 
-                // 2. Загружаем всю накопившуюся историю из базы (сортируем от новых к старым)
-                const snapshot = await db.collection("saved_news").orderBy("timestamp", "desc").get();
-                
+            document.getElementById('refreshBtn').addEventListener('click', () => {
+                loadNewsFromFirebase();
+            });
+
+            function renderNews() {
+                const feed = document.getElementById('feed');
+                const query = document.getElementById('searchInput').value.toLowerCase();
                 feed.innerHTML = '';
+
                 let userReactions = JSON.parse(localStorage.getItem('user_clicked') || '{}');
 
-                if (snapshot.empty) {
-                    feed.innerHTML = '<div style="text-align:center; color:#94a3b8;">В базе пока нет записей.</div>';
+                const filtered = allNewsItems.filter(item => {
+                    const matchesCat = (currentCategory === 'all' || item.tag === currentCategory);
+                    const matchesQuery = (item.title && item.title.toLowerCase().includes(query)) || (item.text && item.text.toLowerCase().includes(query));
+                    return matchesCat && matchesQuery;
+                });
+
+                if (filtered.length === 0) {
+                    feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 20px;">Ничего не найдено.</div>';
                     return;
                 }
 
-                snapshot.forEach((doc) => {
-                    const item = doc.data();
-                    const docId = doc.id;
-                    
+                filtered.forEach((item) => {
+                    const docId = item.id;
+                    const imageHtml = item.imageUrl ? `<img src="${item.imageUrl}" class="news-image" alt="Фото" loading="lazy">` : '';
+                    const tagClass = item.isEmergency ? "news-tag emergency" : "news-tag";
+
                     const card = document.createElement('div');
                     card.className = 'news-card';
                     card.id = `card_${docId}`;
                     card.innerHTML = `
                         <div class="news-header-info">
-                            <span class="news-tag">${item.tag}</span>
-                            <span class="news-pubdate">🕒 ${item.pubDate}</span>
+                            <span class="${tagClass}">${item.tag || 'Новости'}</span>
+                            <span class="news-pubdate">🕒 ${item.pubDate || ''}</span>
                         </div>
                         <div class="news-title">${item.title}</div>
+                        ${imageHtml}
                         <div class="news-text">${item.text}</div>
-                        <div class="news-details">${item.details}</div>
-                        <button class="expand-btn" onclick="window.toggleDetails('${docId}')">
+                        <div class="news-details">${item.details || item.text}</div>
+                        <button class="expand-btn">
                             Подробнее <span>▼</span>
                         </button>
                         <div class="reactions">
-                            <button class="react-btn ${userReactions[`${docId}_👍`] ? 'active' : ''}" id="btn_${docId}_👍" onclick="window.handleReaction('${docId}', '👍')">👍 <span id="count_${docId}_👍">0</span></button>
-                            <button class="react-btn ${userReactions[`${docId}_👎`] ? 'active' : ''}" id="btn_${docId}_👎" onclick="window.handleReaction('${docId}', '👎')">👎 <span id="count_${docId}_👎">0</span></button>
-                            <button class="react-btn ${userReactions[`${docId}_❤️`] ? 'active' : ''}" id="btn_${docId}_❤️" onclick="window.handleReaction('${docId}', '❤️')">❤️ <span id="count_${docId}_❤️">0</span></button>
-                            <button class="react-btn ${userReactions[`${docId}_💩`] ? 'active' : ''}" id="btn_${docId}_💩" onclick="window.handleReaction('${docId}', '💩')">💩 <span id="count_${docId}_💩">0</span></button>
+                            <button class="react-btn ${userReactions[`${docId}__👍`] ? 'active' : ''}" data-id="${docId}" data-emoji="👍">👍 <span id="count_${docId}_👍">0</span></button>
+                            <button class="react-btn ${userReactions[`${docId}__👎`] ? 'active' : ''}" data-id="${docId}" data-emoji="👎">👎 <span id="count_${docId}_👎">0</span></button>
+                            <button class="react-btn ${userReactions[`${docId}__❤️`] ? 'active' : ''}" data-id="${docId}" data-emoji="❤️">❤️ <span id="count_${docId}_❤️">0</span></button>
+                            <button class="react-btn ${userReactions[`${docId}__💩`] ? 'active' : ''}" data-id="${docId}" data-emoji="💩">💩 <span id="count_${docId}_💩">0</span></button>
                         </div>
                     `;
                     feed.appendChild(card);
 
-                    // Слушаем лайки/дизлайки в реальном времени
+                    card.querySelector('.expand-btn').addEventListener('click', () => {
+                        card.classList.toggle('open');
+                    });
+
+                    card.querySelectorAll('.react-btn').forEach(btn => {
+                        btn.addEventListener('click', async function(event) {
+                            const dId = this.getAttribute('data-id');
+                            const emoji = this.getAttribute('data-emoji');
+                            
+                            this.classList.add('animate-pop');
+                            setTimeout(() => this.classList.remove('animate-pop'), 300);
+
+                            const rect = this.getBoundingClientRect();
+                            const clickX = event.clientX - rect.left;
+                            const clickY = event.clientY - rect.top;
+
+                            for (let i = 0; i < 6; i++) {
+                                const particle = document.createElement('div');
+                                particle.className = 'explosion-particle';
+                                particle.innerText = emoji;
+
+                                const angle = Math.random() * Math.PI * 2;
+                                const distance = 40 + Math.random() * 60;
+                                const dx = Math.cos(angle) * distance;
+                                const dy = Math.sin(angle) * distance - 20;
+                                const rot = (Math.random() - 0.5) * 60;
+
+                                particle.style.left = `${clickX}px`;
+                                particle.style.top = `${clickY}px`;
+                                particle.style.setProperty('--dx', `${dx}px`);
+                                particle.style.setProperty('--dy', `${dy}px`);
+                                particle.style.setProperty('--rot', `${rot}deg`);
+
+                                this.appendChild(particle);
+                                setTimeout(() => particle.remove(), 700);
+                            }
+
+                            let userReactions = JSON.parse(localStorage.getItem('user_clicked') || '{}');
+                            const key = `${dId}__${emoji}`;
+
+                            if (userReactions[key]) return;
+
+                            userReactions[key] = true;
+                            localStorage.setItem('user_clicked', JSON.stringify(userReactions));
+                            this.classList.add('active');
+
+                            const ref = db.collection("reactions").doc(dId);
+                            try {
+                                const doc = await ref.get();
+                                if (!doc.exists) {
+                                    await ref.set({ '👍': 0, '👎': 0, '❤️': 0, '💩': 0, [emoji]: 1 });
+                                } else {
+                                    const currentCount = (doc.data()[emoji] || 0) + 1;
+                                    await ref.update({ [emoji]: currentCount });
+                                }
+                            } catch (e) {
+                                console.error("Ошибка при обновлении реакции: ", e);
+                            }
+                        });
+                    });
+
                     db.collection("reactions").doc(docId).onSnapshot((docSnap) => {
                         if (!docSnap.exists) {
                             db.collection("reactions").doc(docId).set({ '👍': 0, '👎': 0, '❤️': 0, '💩': 0 });
@@ -349,42 +511,45 @@
                         }
                     });
                 });
-
-            } catch (err) {
-                console.error(err);
-                feed.innerHTML = '<div style="text-align:center; color:#f87171;">Не удалось загрузить новости. Проверьте интернет-соединение.</div>';
-            }
-        };
-
-        window.toggleDetails = function(docId) {
-            document.getElementById(`card_${docId}`).classList.toggle('open');
-        };
-
-        window.handleReaction = async function(docId, emoji) {
-            const btnKey = `${docId}__${emoji}`;
-            const btn = document.getElementById(`btn_${docId}_${emoji}`);
-            
-            let userReactions = JSON.parse(localStorage.getItem('user_clicked') || '{}');
-            const isActive = !!userReactions[btnKey];
-
-            userReactions[btnKey] = !isActive;
-            localStorage.setItem('user_clicked', JSON.stringify(userReactions));
-
-            if (!isActive) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
             }
 
-            const docRef = db.collection("reactions").doc(docId);
-            try {
-                await docRef.update({
-                    [emoji]: firebase.firestore.FieldValue.increment(isActive ? -1 : 1)
-                });
-            } catch (err) {
-                await docRef.set({ [emoji]: isActive ? 0 : 1 }, { merge: true });
+            async function loadNewsFromFirebase() {
+                const feed = document.getElementById('feed');
+                feed.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 20px;">Загрузка архива...</div>';
+
+                try {
+                    const snapshot = await db.collection("saved_news").orderBy("timestamp", "desc").get();
+
+                    if (snapshot.empty) {
+                        await db.collection("saved_news").doc("news_welcome_sample").set({
+                            tag: "🌟 ТАСС: Главное",
+                            isEmergency: false,
+                            title: "Добро пожаловать в GoodNews Live!",
+                            text: "База данных успешно подключена. Реакции и функции работают!",
+                            details: "Тестовая запись для проверки системы.",
+                            pubDate: "Только что",
+                            timestamp: Date.now(),
+                            link: "#",
+                            imageUrl: ""
+                        });
+                        return loadNewsFromFirebase();
+                    }
+
+                    allNewsItems = [];
+                    snapshot.forEach((doc) => {
+                        allNewsItems.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    renderNews();
+                } catch (err) {
+                    console.error(err);
+                    feed.innerHTML = `<div style="text-align:center; color:#f87171; padding: 20px;">Ошибка связи с Firebase: ${err.message}</div>`;
+                }
             }
-        };
+
+            document.getElementById('dateStringDisplay').innerText = "📅 " + new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+            loadNewsFromFirebase();
+        });
     </script>
 </body>
 </html>
